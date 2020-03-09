@@ -51,6 +51,8 @@ src/jsoncpp/
 src/sfml-widgets/
 vsbuild/
 wbuild/
+ubuild/
+*.code-workspace
 
 # wszystkie ukryte foldery poza wynienionymi
 .*
