@@ -2,6 +2,6 @@
 
 #include <iostream>
 
-void Jimmy::print(){
-    std::cout << "test\n";
+void Jimmy::includeTest(){
+    std::cout << "Jimmy imported\n";
 }
