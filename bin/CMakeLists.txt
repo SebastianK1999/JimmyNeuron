@@ -18,7 +18,7 @@ if (WIN32)
         ARCHIVE DESTINATION "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
     )
 
-    target_link_options(JimmyNeuronDemo PRIVATE -mwindows)
+    #target_link_options(JimmyNeuronDemo PRIVATE -mwindows)
 
 endif()
 

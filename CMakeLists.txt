@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(JimmyNeuron VERSION 1.11)
+project(JimmyNeuron VERSION 0.10)
+
 
 if (WIN32)# AND EXISTS "${CMAKE_CURRENT_BINARY_DIR}/../src/SFML/lib")
 
