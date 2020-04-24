@@ -3,4 +3,4 @@
 Simple Neural-Network library for c++
 
 ###### Artificial neural network by Cookie Core 
-![alt text](https://raw.githubusercontent.com/marcinu456/Logo/master/logocoockiecore_icon.png "Cookie Core logo")
+![alt text](res/CookieCoreLogo_100x100.png "Cookie Core logo")

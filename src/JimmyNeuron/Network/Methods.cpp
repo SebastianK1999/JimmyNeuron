@@ -48,19 +48,19 @@ double Jimmy::Methods::transFuncs::DERRELU(double x, double r){
 const Jimmy::TransferFunction Jimmy::Methods::transFuncs::reLU = TransferFunction(Methods::transFuncs::RELU,Methods::transFuncs::DERRELU);
 
 //      Softmax
-double Jimmy::Methods::transFuncs::RELU(double x){
+double Jimmy::Methods::transFuncs::SOFTMAX(double x){
     if (x >= 0){
         return x;
     }
     return 0;
 }
-double Jimmy::Methods::transFuncs::DERRELU(double x, double r){
+double Jimmy::Methods::transFuncs::DERSOFTMAX(double x, double r){
     if (x >= 0){
         return 1;
     }
     return 0;
 }
-const Jimmy::TransferFunction Jimmy::Methods::transFuncs::reLU = TransferFunction(Methods::transFuncs::RELU,Methods::transFuncs::DERRELU);
+const Jimmy::TransferFunction Jimmy::Methods::transFuncs::softmax = TransferFunction(Methods::transFuncs::SOFTMAX,Methods::transFuncs::DERSOFTMAX);
 
 
 

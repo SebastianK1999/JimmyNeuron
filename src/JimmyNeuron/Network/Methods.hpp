@@ -33,7 +33,7 @@ namespace Jimmy{
             static double DERRELU(double, double);
 
             static double SOFTMAX(double); // TO DO
-            static double SOFTMAX(double, double); // TO DO
+            static double DERSOFTMAX(double, double); // TO DO
         };
 
 
@@ -41,8 +41,8 @@ namespace Jimmy{
         public:
             static const LossFunction rmse; // "Root Mean Sqared Error" LossFunction
             static const LossFunction bce; // "Binary Cross-Entropy" LossFunction
-            static const LossFunction cce; 
-            static const LossFunction scce;
+            static const LossFunction cce; // TO DO
+            static const LossFunction scce; // TO DO
 
         private:
             static double RMSE(const std::vector<double>&, const Jimmy::LAYER&);
