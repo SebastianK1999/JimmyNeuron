@@ -2,7 +2,8 @@
 #define JIMMY_LIB
 
 #include "Network/Network.hpp"
-#include "Network/TransformationFunction.hpp"
+#include "Network/TransferFunction.hpp"
+#include "Network/LossFunction.hpp"
 #include "Network/Methods.hpp"
 
 namespace Jimmy{
