@@ -2,7 +2,8 @@
 #define NETWORK_INCLUDE
 
 #include "Layer.hpp"
-#include "TransformationFunction.hpp"
+#include "TransferFunction.hpp"
+#include "LossFunction.hpp"
 
 #include <JimmyNeuron/Jimmy.hpp>
 #include <iostream>
@@ -12,7 +13,8 @@ namespace Jimmy{
     class Net{ // Class for training and useage of Network
         private:
         std:: vector<Jimmy::LAYER> layers;
-        Jimmy::TransformationFunction transFunc;
+        Jimmy::TransferFunction transFunc;
+        Jimmy::LossFunction lossFunc;
 
         public:
         double learningRate; // Variable that controlls speed and precision of learning // usualy between 0.01 and 0,0001
@@ -20,7 +22,7 @@ namespace Jimmy{
         void backProp(const std::vector<double>&); // Takes reference, to what the results shold be in the output layer
         void getResult(std::vector<double>) const;
 
-        Net(std::vector<unsigned int>,const Jimmy::TransformationFunction&); // Create network with, n naurons in each layer
+        Net(std::vector<unsigned int>,const Jimmy::TransferFunction&, const Jimmy::LossFunction&); // Create network with, n naurons in each layer
     };
 }
 

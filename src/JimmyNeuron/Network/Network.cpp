@@ -1,7 +1,8 @@
 #include "Network.hpp"
 
-Jimmy::Net::Net(std::vector<unsigned int> vec,const Jimmy::TransformationFunction& transFoo)
-:transFunc(transFoo)
+Jimmy::Net::Net(std::vector<unsigned int> vec,const Jimmy::TransferFunction& transFoo,const Jimmy::LossFunction& lossFoo)
+:transFunc(transFoo),
+lossFunc(lossFoo)
 {
     this->layers.push_back(Jimmy::LAYER(vec[0])); // initializes imput layer
     for(std::vector<unsigned int>::iterator iter = vec.begin()+1; iter != vec.end(); iter++){ // does the rest and sets theri connections
@@ -19,4 +20,11 @@ void Jimmy::Net::feedForward(const std::vector<double>& inputs){
             this->layers[i][j].think(this->transFunc);
         }
     }
+//    for(int j = 0; j < this->layers[this->layers.size()-1].neurons.size(); j++){
+//        std::cout << this->layers[this->layers.size()-1][j].outValue << std::endl;
+//    }
+}
+
+void Jimmy::Net::backProp(const std::vector<double>& realValues){
+    double error = this->lossFunc.run(realValues, this->layers.back());
 }
