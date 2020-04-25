@@ -20,11 +20,42 @@ void Jimmy::Net::feedForward(const std::vector<double>& inputs){
             this->layers[i][j].think(this->transFunc);
         }
     }
-//    for(int j = 0; j < this->layers[this->layers.size()-1].neurons.size(); j++){
-//        std::cout << this->layers[this->layers.size()-1][j].outValue << std::endl;
-//    }
 }
 
 void Jimmy::Net::backProp(const std::vector<double>& realValues){
     double error = this->lossFunc.run(realValues, this->layers.back());
+
+    // network gradient 
+    this->averageError = (this->averageError * 100 + error) / (100 + 1.0);
+
+    // output gradient
+    for(int i = 0; i < this->layers.back().neurons.size(); i++){
+        this->layers.back()[i].gradient = (realValues[i] - this->layers.back()[i].outValue) * this->transFunc.runDervative(this->layers.back()[i].weightedSum, this->layers.back()[i].outValue);
+    }
+
+    // hiden gradient
+    for(int i = this->layers.size()-2; i > 0; i--){
+        for(int j = 0; j < this->layers[i].neurons.size(); j++){
+            double sumGradientWeights = 0.0;
+            for(int k = 0; k < this->layers[i+1].neurons.size(); k++){
+                sumGradientWeights += this->layers[i+1][k].inputWeights[j] * this->layers[i+1][k].gradient;
+            }
+            this->layers[i][j].gradient = sumGradientWeights * this->transFunc.runDervative(this->layers[i][j].weightedSum, this->layers[i][j].outValue);
+        }
+    }
+
+    // update weights
+    for(unsigned i  = this->layers.size()-1; i > 0; i--){
+        for(int j = 0; j < this->layers[i].neurons.size(); j++){
+            this->layers[i][j].updateInputWeights();
+        }
+    }
+}
+
+const double& Jimmy::Net::getResult(int i) const {
+    return this->layers.back().neurons[i].outValue;
+}
+
+double Jimmy::Net::getLoss() const{
+    return this->averageError;
 }

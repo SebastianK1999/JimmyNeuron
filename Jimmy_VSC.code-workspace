@@ -47,7 +47,11 @@
 			"random": "cpp",
 			"ratio": "cpp",
 			"array": "cpp",
-			"iterator": "cpp"
+			"iterator": "cpp",
+			"cctype": "cpp",
+			"fstream": "cpp",
+			"sstream": "cpp",
+			"string": "cpp"
 		}
 	}
 }

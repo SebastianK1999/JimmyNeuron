@@ -15,12 +15,14 @@ namespace Jimmy{
         std:: vector<Jimmy::LAYER> layers;
         Jimmy::TransferFunction transFunc;
         Jimmy::LossFunction lossFunc;
+        double averageError;
 
         public:
+        double getLoss() const;
         double learningRate; // Variable that controlls speed and precision of learning // usualy between 0.01 and 0,0001
         void feedForward(const std::vector<double>&); // Takes reference, to input data of the first layer
         void backProp(const std::vector<double>&); // Takes reference, to what the results shold be in the output layer
-        void getResult(std::vector<double>) const;
+        const double& getResult(int) const;
 
         Net(std::vector<unsigned int>,const Jimmy::TransferFunction&, const Jimmy::LossFunction&); // Create network with, n naurons in each layer
     };

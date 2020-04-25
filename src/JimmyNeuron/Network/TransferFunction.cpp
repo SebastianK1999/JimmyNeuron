@@ -1,8 +1,10 @@
 #include "TransferFunction.hpp"
 
-void Jimmy::TransferFunction::run(double neuronOutput){
-    this->result = this->foo(neuronOutput);
-    this->derivativeResult = this->derivativeFoo(neuronOutput,this->result);
+double Jimmy::TransferFunction::run(double neuronOutput){
+    return this->foo(neuronOutput);
+}
+double Jimmy::TransferFunction::runDervative(double neuronOutput, double neuronResult){
+    return this->derivativeFoo(neuronOutput,neuronResult);
 }
 
 Jimmy::TransferFunction::TransferFunction(double (*function)(double), double (*derFoo)(double, double)){
