@@ -4,8 +4,11 @@ add_executable(JimmyNeuronDemo demo.cpp)
 target_link_libraries(JimmyNeuronDemo PUBLIC
     # Our
     Jimmy
-    
+    Games
     # External
+    sfml-graphics
+    sfml-window
+    sfml-system
 )
 
 

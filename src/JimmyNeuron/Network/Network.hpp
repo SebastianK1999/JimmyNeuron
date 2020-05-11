@@ -22,9 +22,11 @@ namespace Jimmy{
         double learningRate; // Variable that controlls speed and precision of learning // usualy between 0.01 and 0,0001
         void feedForward(const std::vector<double>&); // Takes reference, to input data of the first layer
         void backProp(const std::vector<double>&); // Takes reference, to what the results shold be in the output layer
+        void punish();
+        void reward();
         const double& getResult(int) const;
 
-        Net(std::vector<unsigned int>,const Jimmy::TransferFunction&, const Jimmy::LossFunction&); // Create network with, n naurons in each layer
+        Net(std::vector<unsigned int>, const Jimmy::TransferFunction&, const Jimmy::LossFunction&); // Create network with, n naurons in each layer
     };
 }
 

@@ -1,6 +1,6 @@
 #include "Neuron.hpp"
 
-void Jimmy::NEURON::think(Jimmy::TransferFunction transfoo){
+void Jimmy::NEURON::think(Jimmy::TransferFunction& transfoo){
     this->weightedSum = this->selfWeight;
     for(int i = 0; i < this->inputValuePointers.size(); i++){
         this->weightedSum += *this->inputValuePointers[i] * this->inputWeights[i];
