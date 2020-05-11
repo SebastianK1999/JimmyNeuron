@@ -20,7 +20,7 @@ namespace Jimmy{
         std::vector<double> deltaWeights;
         double selfWeight;// weight that is added to the output, that helps some neurosn work better
         double selfDeltaWeight;
-        void think(Jimmy::TransferFunction); // makes akes the data and calculates output
+        void think(Jimmy::TransferFunction&); // makes akes the data and calculates output
         void updateInputWeights();
 
         NEURON(); // Initializes a neuron without references to other neurons

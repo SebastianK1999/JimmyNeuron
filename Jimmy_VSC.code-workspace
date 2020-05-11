@@ -51,7 +51,23 @@
 			"cctype": "cpp",
 			"fstream": "cpp",
 			"sstream": "cpp",
-			"string": "cpp"
+			"string": "cpp",
+			"ctime": "cpp",
+			"deque": "cpp",
+			"functional": "cpp",
+			"iomanip": "cpp",
+			"list": "cpp",
+			"locale": "cpp",
+			"map": "cpp",
+			"queue": "cpp",
+			"set": "cpp",
+			"unordered_map": "cpp",
+			"xhash": "cpp",
+			"xlocbuf": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xloctime": "cpp",
+			"xtree": "cpp"
 		}
 	}
 }
