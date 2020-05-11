@@ -53,7 +53,6 @@ vsbuild/
 wbuild/
 ubuild/
 *.code-workspace
-.tutor/
 
 # wszystkie ukryte foldery poza wynienionymi
 .*
