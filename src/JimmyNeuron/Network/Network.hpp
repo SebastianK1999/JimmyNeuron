@@ -8,22 +8,46 @@
 #include <JimmyNeuron/Jimmy.hpp>
 #include <iostream>
 #include <vector>
+#include <functional>
+#include <cassert>
 
 namespace Jimmy{
     class Net{ // Class for training and useage of Network
+        class CRITIC{
+            private:
+            Jimmy::Net* networkPointer;
+            std::vector<std::reference_wrapper<Jimmy::NEURON>> watchListNeurons;
+            void backProp(int);
+            void updateNeuronInputWeights();
+
+            double trigger = 0.5;
+            int logicValue(double&);
+
+
+            public:
+            void chooseHighest();
+            void chooseLowest();
+            void chooseAll();
+            void chooseSelected(const std::vector<unsigned int>& outputNeuronIndex);
+
+            void reward();
+            void punish();
+            void observe();
+            CRITIC(Jimmy::Net*);
+        };
+
         private:
-        std:: vector<Jimmy::LAYER> layers;
+        std::vector<Jimmy::LAYER> layers;
         Jimmy::TransferFunction transFunc;
         Jimmy::LossFunction lossFunc;
         double averageError;
 
         public:
+        CRITIC critic;
         double getLoss() const;
         double learningRate; // Variable that controlls speed and precision of learning // usualy between 0.01 and 0,0001
         void feedForward(const std::vector<double>&); // Takes reference, to input data of the first layer
         void backProp(const std::vector<double>&); // Takes reference, to what the results shold be in the output layer
-        void punish();
-        void reward();
         const double& getResult(int) const;
 
         Net(std::vector<unsigned int>, const Jimmy::TransferFunction&, const Jimmy::LossFunction&); // Create network with, n naurons in each layer

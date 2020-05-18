@@ -29,7 +29,7 @@ void Games::DinoGame::player::gravity(){
 void Games::DinoGame::player::jump(){
     if(!this->isJumping){
         this->isJumping = true;
-        this->vy = -20;
+        this->vy = -23;
     }
 }
 void Games::DinoGame::player::duck(){
@@ -39,11 +39,6 @@ void Games::DinoGame::player::duck(){
         this->isDucking = false;
     }
 }
-
-
-
-
-
 
 Games::DinoGame::obsticle::obsticle(){
     this->img.loadFromFile("../res/bee_img.png");
@@ -82,79 +77,54 @@ double Games::DinoGame::obsticle::getTarget(int i){
 }
 
 
-
-
-
-
 void Games::DinoGame::start(){
     std::cout << "stariting DinoGame\n";
     sf::Event event;
     while(this->Window.isOpen()){
-
-        if(!p.isJumping && !p.isDucking && this->canThink && this->countdown == 0){
-            this->NeuralNet.feedForward(std::vector<double>{(double) this->obsts.body.getPosition().x / 500.0});
-            this->countdown = 15;
+        if(!p.isJumping){
+            this->NeuralNet.feedForward(std::vector<double>{(double) this->obsts.body.getPosition().x/250});
         }
 
-        if(this->NeuralNet.getResult(0) > 0.5 && this->canThink){
+        if(this->NeuralNet.getResult(0) > 0.5){
             this->p.jump();
             canThink = false;
         }
-        else if(this->NeuralNet.getResult(1) > 0.5 && this->canThink){
+        else if(this->NeuralNet.getResult(1) > 0.5){
             p.isDucking = true;
             canThink = false;
         }
         this->p.duck();
         this->p.gravity();
-        this->countdown--;
+        
 
         if( !this->wereTouching && this->p.body.getGlobalBounds().intersects(this->obsts.body.getGlobalBounds())){
             this->wereTouching = true;
         }
 
-        if(this->countdown == 0){
-            std::cout << "example " << 0 << "\n"
-                << "result:" << this->NeuralNet.getResult(0) << "\tloss: " << this->NeuralNet.getLoss() <<'\n';
 
-            if(this->wereTouching){
-                std::cout <<"\x1b[41mfailed\x1b[0m\n\n";
-            }
-            else{
-                std::cout <<"\x1b[42mpassed\x1b[0m\n\n";
-            }
-            if(this->NeuralNet.getResult(0) >= 0.5 && true){//this->knowsHowToJump){
-                this->knowsHowToJump = true;
+        this->NeuralNet.critic.chooseHighest();
 
-                if(this->target[0] && this->wereTouching){
-                    this->NeuralNet.backProp(std::vector<double>{0,0});
-                }
-                else if(this->target[0] && !this->wereTouching){
-                    this->NeuralNet.backProp(std::vector<double>{1,0});
-                }
-                else if(this->target[1] && this->wereTouching){
-                    this->NeuralNet.backProp(std::vector<double>{0,0});
-                }
-                else if(this->target[1] && !this->wereTouching){
-                    this->NeuralNet.backProp(std::vector<double>{0,0});
-                }
-            }
-            else if(this->NeuralNet.getResult(0) < 0.5 || this->NeuralNet.getResult(1) < 0.5){
-                if(!this->wereTouching){
-                    this->NeuralNet.backProp(std::vector<double>{0,0});
-                }
-            }
+
+        std::cout << "example " << 0 << "\n"
+            << "result:" << this->NeuralNet.getResult(0) << "\tloss: " << this->NeuralNet.getLoss() <<'\n';
+        if(this->wereTouching){
+            this->NeuralNet.critic.punish();
+            std::cout <<"\x1b[41mfailed\x1b[0m\n\n";
+        }
+        else{
+            this->NeuralNet.critic.reward();
+            std::cout <<"\x1b[42mpassed\x1b[0m\n\n";
         }
 
 
         if(this->obsts.move(this->speed)){
-            
-
             this->target[0] = this->obsts.getTarget(0);
             this->target[1] = this->obsts.getTarget(1);
-            this->wereTouching = 0;
+            this->wereTouching = false;
             this->canThink = true;
+
+
         }
-        
         
         while (this->Window.pollEvent(event)){
             if (event.type == sf::Event::Closed){
@@ -170,7 +140,7 @@ void Games::DinoGame::start(){
 }
 
 Games::DinoGame::DinoGame():
-NeuralNet(std::vector<unsigned int>{1,10,10,2} ,Jimmy::Methods::transFuncs::linear, Jimmy::Methods::lossFuncs::rmse),
+NeuralNet(std::vector<unsigned int>{1,4,2} ,Jimmy::Methods::transFuncs::tanh, Jimmy::Methods::lossFuncs::rmse),
 speed(5),
 score(0),
 obsts()

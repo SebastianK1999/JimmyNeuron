@@ -21,7 +21,7 @@ void Jimmy::NEURON::updateInputWeights(){
 
 Jimmy::NEURON::NEURON(){
     this->alpha = 0.05;
-    this->eta = 0.01;
+    this->eta = 0.001;
     this->selfWeight = 0;
 }
 
@@ -30,7 +30,7 @@ Jimmy::NEURON::NEURON(std::vector<Jimmy::NEURON>& refNeurons)
 {
     std::srand(std::chrono::steady_clock::now().time_since_epoch().count());
     for(int i = 0; i < refNeurons.size(); i++){
-        this->inputValuePointers.push_back(&refNeurons[i].outValue);
+        this->inputValuePointers.push_back(&(refNeurons[i].outValue));
         this->inputWeights.push_back((double) std::rand() / INT_MAX);// / std::numeric_limits<double>::max());
         this->deltaWeights.push_back(0.0);
     }
