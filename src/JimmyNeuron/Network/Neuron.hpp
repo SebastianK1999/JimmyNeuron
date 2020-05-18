@@ -19,6 +19,7 @@ namespace Jimmy{
         std::vector<double> inputWeights; // Vector of weights of the references
         std::vector<double> deltaWeights;
         double selfWeight;// weight that is added to the output, that helps some neurosn work better
+        double selfGradient; // gradient of bias neuron
         double selfDeltaWeight;
         void think(Jimmy::TransferFunction&); // makes akes the data and calculates output
         void updateInputWeights();
