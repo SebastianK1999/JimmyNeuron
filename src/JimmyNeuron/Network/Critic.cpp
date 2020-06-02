@@ -11,11 +11,64 @@ void Jimmy::Critic::punish(){
     this->backProp(-1);
 }
 
-int Jimmy::Critic::logicValue(double& output){
+int Jimmy::Critic::logicValue(const double& output){
     if(output >= this->trigger){
         return 1;
     }
     return -1;
+}
+
+
+void Jimmy::Critic::record(){
+    std::vector<double> inputs;
+    for(int i = 0; i < this->networkPointer->layers[0].neurons.size(); i++){
+        inputs.push_back( this->networkPointer->layers[0][i].outValue);
+    }
+    std::vector<double> outputs;
+    std::vector<unsigned int> outputIndexes;
+    for(int i = 0; i < this->watchListNeurons.size(); i++){
+        outputs.push_back( this->watchListNeurons[i].get().outValue);
+        outputIndexes.push_back( this->watchListNeurons[i].get().index);
+    }
+    this->records.inputs.push_back(inputs);
+    this->records.outputs.push_back(outputs);
+    this->records.outputIndexes.push_back(outputIndexes);
+}
+
+void Jimmy::Critic::punishRecords(){
+    for(int i = 0; i < this->records.inputs.size(); i++){
+        this->networkPointer->feedForward(this->records.inputs[i]);
+        bool isTheSame = 1;
+        for(int j; j < this->records.outputIndexes[i].size(); j++){
+            if(this->logicValue( this->networkPointer->getResult(this->records.outputIndexes[i][j]) ) != this->logicValue(this->records.outputs[i][j])){
+                isTheSame = false;
+            }
+        }
+        if(! isTheSame){
+            break;
+        }    
+        else{
+            this->punish();
+        }
+    }
+}
+
+void Jimmy::Critic::rewardRecords(){
+    for(int i = 0; i < this->records.inputs.size(); i++){
+        this->networkPointer->feedForward(this->records.inputs[i]);
+        bool isTheSame = 1;
+        for(int j; j < this->records.outputIndexes[i].size(); j++){
+            if(this->logicValue( this->networkPointer->getResult(this->records.outputIndexes[i][j]) ) != this->logicValue(this->records.outputs[i][j])){
+                isTheSame = false;
+            }
+        }
+        if(! isTheSame){
+            break;
+        }    
+        else{
+            this->reward();
+        }
+    }
 }
 
 

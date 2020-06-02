@@ -10,6 +10,7 @@
 namespace Jimmy{
     class NEURON{
         public:
+        unsigned int index;
         double alpha; // momentum learning variable
         double gradient; // gradient of the neuron
         double weightedSum; // sum af all neuron inputs with weigts and self Weight
@@ -22,8 +23,8 @@ namespace Jimmy{
         void think(Jimmy::TransferFunction&); // makes akes the data and calculates output
         void updateInputWeights(); // upates input weights of the neuron
 
-        NEURON(); // Initializes a neuron without references to other neurons
-        NEURON(std::vector<Jimmy::NEURON>&); // Initializes a neuron with references to other neurons
+        NEURON(int); // Initializes a neuron without references to other neurons
+        NEURON(int,std::vector<Jimmy::NEURON>&); // Initializes a neuron with references to other neurons
     };
 }
 #endif

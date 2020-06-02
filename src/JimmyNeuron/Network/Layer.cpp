@@ -2,13 +2,13 @@
 
 Jimmy::LAYER::LAYER(unsigned int size){
     for(int i = 0; i < size; i++){
-        this->neurons.push_back(Jimmy::NEURON());
+        this->neurons.push_back(Jimmy::NEURON(i));
     }
 }
 
 Jimmy::LAYER::LAYER(unsigned int size, Jimmy::LAYER & layer){
     for(int i = 0; i < size; i++){
-        this->neurons.push_back(Jimmy::NEURON(layer.neurons));
+        this->neurons.push_back(Jimmy::NEURON(i,layer.neurons));
     }
 }
 

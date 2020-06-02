@@ -41,6 +41,7 @@ namespace Games{
         obsticle obsts;
         player p;
         Jimmy::Net NeuralNet;
+        Jimmy::Critic critic;
         bool canThink = true;
         bool knowsHowToJump = false;
         bool wereTouching;

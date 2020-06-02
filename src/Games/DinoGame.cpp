@@ -144,10 +144,12 @@ void Games::DinoGame::start(){
 }
 
 Games::DinoGame::DinoGame():
+critic(NeuralNet),
 NeuralNet(std::vector<unsigned int>{1,4,2} ,Jimmy::Methods::transFuncs::tanh, Jimmy::Methods::lossFuncs::rmse, 0.01),
 speed(5),
 score(0),
 obsts()
+
 {   
     this->Window.create(sf::VideoMode(500,200), "DinoGame");
     this->Window.setFramerateLimit(60);
