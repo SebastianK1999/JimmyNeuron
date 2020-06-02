@@ -81,15 +81,15 @@ void Games::DinoGame::start(){
     std::cout << "stariting DinoGame\n";
     sf::Event event;
     while(this->Window.isOpen()){
-        if(!p.isJumping){
+        if(canThink){
             this->NeuralNet.feedForward(std::vector<double>{(double) this->obsts.body.getPosition().x/250});
         }
 
-        if(this->NeuralNet.getResult(0) > 0.5){
-            this->p.jump();
+        if(this->NeuralNet.getResult(0) > 0.5 && canThink){
+            this->p.jump(); 
             canThink = false;
         }
-        else if(this->NeuralNet.getResult(1) > 0.5){
+        else if(this->NeuralNet.getResult(1) > 0.5 && canThink){
             p.isDucking = true;
             canThink = false;
         }
@@ -102,22 +102,26 @@ void Games::DinoGame::start(){
         }
 
 
-        this->NeuralNet.critic.chooseHighest();
+        //this->NeuralNet.critic.chooseHighest();
 
 
-        std::cout << "example " << 0 << "\n"
-            << "result:" << this->NeuralNet.getResult(0) << "\tloss: " << this->NeuralNet.getLoss() <<'\n';
-        if(this->wereTouching){
-            this->NeuralNet.critic.punish();
-            std::cout <<"\x1b[41mfailed\x1b[0m\n\n";
-        }
-        else{
-            this->NeuralNet.critic.reward();
-            std::cout <<"\x1b[42mpassed\x1b[0m\n\n";
-        }
 
+        //this->NeuralNet.critic.observe();
 
         if(this->obsts.move(this->speed)){
+
+            std::cout << "example " << 0 << "\n"
+                << "result:" << this->NeuralNet.getResult(0) << "\tloss: " << this->NeuralNet.getLoss() <<'\n';
+            if(this->wereTouching){
+                //this->NeuralNet.critic.punish();
+                std::cout <<"\x1b[41mfailed\x1b[0m\n\n";
+            }
+            else{
+                //this->NeuralNet.critic.reward();
+                std::cout <<"\x1b[42mpassed\x1b[0m\n\n";
+            }
+
+
             this->target[0] = this->obsts.getTarget(0);
             this->target[1] = this->obsts.getTarget(1);
             this->wereTouching = false;
@@ -140,7 +144,7 @@ void Games::DinoGame::start(){
 }
 
 Games::DinoGame::DinoGame():
-NeuralNet(std::vector<unsigned int>{1,4,2} ,Jimmy::Methods::transFuncs::tanh, Jimmy::Methods::lossFuncs::rmse),
+NeuralNet(std::vector<unsigned int>{1,4,2} ,Jimmy::Methods::transFuncs::tanh, Jimmy::Methods::lossFuncs::rmse, 0.01),
 speed(5),
 score(0),
 obsts()

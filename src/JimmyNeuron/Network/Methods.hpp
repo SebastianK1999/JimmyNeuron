@@ -7,6 +7,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <functional>
 
 namespace Jimmy{
     class Methods{
@@ -15,25 +16,29 @@ namespace Jimmy{
         public:
             static const TransferFunction tanh; // "Tanh" TransfotmationFunction and derivative
             static const TransferFunction sigmoid; // "Sgmoid" TransfotmationFunction and derivative
+            static const TransferFunction fastSigmoid; // "FastSgmoid" TransfotmationFunction and derivative
             static const TransferFunction linear; // "Linear" TransfotmationFunction and derivative
             static const TransferFunction reLU; // "ReLU" TransfotmationFunction and derivative
             static const TransferFunction softmax; // TO DO
         private:
             // Functions and derivatives to put inside TransfotmationFunction
-            static double TANH(double);
-            static double DERTANH(double, double);
+            static double TANH(const double&);
+            static double DERTANH(const double&);
             
-            static double SIGMOID(double);
-            static double DERSIGMOID(double, double);
+            static double SIGMOID(const double&);
+            static double DERSIGMOID(const double&);
 
-            static double LINEAR(double);
-            static double DERLINEAR(double, double);
+            static double FASTSIGMOID(const double&);
+                // DERFASTSIGMOID IS THE SAME AS DERTANH
 
-            static double RELU(double);
-            static double DERRELU(double, double);
+            static double LINEAR(const double&);
+            static double DERLINEAR(const double&);
 
-            static double SOFTMAX(double); // TO DO
-            static double DERSOFTMAX(double, double); // TO DO
+            static double RELU(const double&);
+            static double DERRELU(const double&);
+
+            static double SOFTMAX(const double&); // TO DO
+            static double DERSOFTMAX(const double&); // TO DO
         };
 
 
@@ -45,10 +50,10 @@ namespace Jimmy{
             static const LossFunction scce; // TO DO
 
         private:
-            static double RMSE(const std::vector<double>&, const Jimmy::LAYER&);
-            static double BCE(const std::vector<double>&, const Jimmy::LAYER&);
-            static double CCE(const std::vector<double>&, const Jimmy::LAYER&);
-            static double SCCE(const std::vector<double>&, const Jimmy::LAYER&);
+            static double RMSE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
+            static double BCE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
+            static double CCE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
+            static double SCCE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
         };
     };
 }

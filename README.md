@@ -1,4 +1,4 @@
-# ![alt text](res/jimmy_neuron_logo_50x.png "JimmyNeuron logo") JimmyNeuron
+# ![alt text](res/jimmy_neuron_logo_.png "JimmyNeuron logo") 
 
 ## Simple Neural-Network library for c++
 Library is still under development
@@ -32,7 +32,7 @@ Library supports Back Propagation algorythym and critic learning.
         std::vector<unsigned int> topology{2,10,1}; 
 
         // creates Net instance
-        Jimmy::Net mynet(topology, Jimmy::Methods::transFuncs::linear, Jimmy::Methods::lossFuncs::rmse);
+        Jimmy::Net mynet(topology, Jimmy::Methods::transFuncs::linear, Jimmy::Methods::lossFuncs::rmse, 0.01);
 
         // defying inputs, and desired outputs
         vector<double> inp = {0, 0};
@@ -58,7 +58,7 @@ Library supports Back Propagation algorythym and critic learning.
 
 ## Technologies
 
-1. Uses cmake, for meake it easier to compile
+1. Uses cmake, to meake it easier to compile
 2. This library needs SFML library to be placed in "src/" directory (at this moment) https://github.com/SFML/SFML
 
 
