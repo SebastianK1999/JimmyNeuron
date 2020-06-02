@@ -19,13 +19,14 @@ void Jimmy::NEURON::updateInputWeights(){
     this->selfWeight += this->selfDeltaWeight;
 }
 
-Jimmy::NEURON::NEURON(){
+Jimmy::NEURON::NEURON(int index){
+    this->index = index;
     this->alpha = 0.05;
     this->selfWeight = 0;
 }
 
-Jimmy::NEURON::NEURON(std::vector<Jimmy::NEURON>& refNeurons)
-:Jimmy::NEURON::NEURON() // Basic init{
+Jimmy::NEURON::NEURON(int index, std::vector<Jimmy::NEURON>& refNeurons)
+:Jimmy::NEURON::NEURON(index) // Basic init{
 {
     for(int i = 0; i < refNeurons.size(); i++){
         this->inputValuePointers.push_back(&(refNeurons[i].outValue));

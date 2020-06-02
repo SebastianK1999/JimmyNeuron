@@ -4,6 +4,7 @@
 #include "Layer.hpp"
 #include "TransferFunction.hpp"
 #include "LossFunction.hpp"
+#include "RecordsIO.hpp"
 
 #include <JimmyNeuron/Jimmy.hpp>
 #include <iostream>
@@ -20,10 +21,15 @@ namespace Jimmy{
         void backProp(int); // modified backProp algorythym. supports wotchlist neurons
         
         double trigger = 0.5; // constant that sets the poit in whitch the output logic value changes
-        int logicValue(double&); // convets output to posible desired output
+        int logicValue(const double&); // convets output to posible desired output
 
+        Jimmy::RECORDS_IO records;
 
         public:
+        void record(); // saves input and output od the net
+        void rewardRecords(); // rewards based on good preformance with no errors
+        void punishRecords(); // punishes based on bad preformance with no errors
+
         void chooseHighest(); // puts neuron with the highest output on the watch list
         void chooseLowest(); // puts neuron with the lowes output on the watchlist
         void chooseAll(); // puts alll neuron on the watch list
