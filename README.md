@@ -1,4 +1,4 @@
-# ![alt text](res/jimmy_neuron_logo_.png "JimmyNeuron logo") 
+# ![alt text](res/jimmy_logo_100p.png "JimmyNeuron logo") 
 
 ## Simple Neural-Network library for c++
 Library is still under development
