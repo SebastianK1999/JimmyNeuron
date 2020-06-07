@@ -14,6 +14,7 @@
 namespace Jimmy{
     class Net{ // Class for training and useage of Network
         friend class Critic; // defying Jimmy::Critic as a friend class
+        friend class RECORDS_IO; // defying Jimmy::RECORDS_IO as record
         private:
         std::vector<Jimmy::LAYER> layers; // Layes of the net
         Jimmy::TransferFunction transFunc; // copy of the transfer function

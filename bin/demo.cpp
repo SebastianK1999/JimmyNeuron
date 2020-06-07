@@ -1,4 +1,4 @@
-#define DEV_NET // DEVELOPMENT MODE ( GAME / NET)
+#define DEV_GAME // DEVELOPMENT MODE ( GAME / NET)
 
 
 #include <iostream>

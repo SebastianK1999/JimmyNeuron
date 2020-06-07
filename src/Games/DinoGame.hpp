@@ -23,6 +23,7 @@ namespace Games{
         };
         class player{
             public:
+            void reset();
             sf::RectangleShape body;
             bool isJumping = true;
             bool isDucking = false;
@@ -47,11 +48,13 @@ namespace Games{
         bool wereTouching;
         int countdown = 45;
         std::vector<double> target{0,0};
+        void reset();
         double speed;
         double score;
         void move();
         void logistics();
         void start();
+        void gameSim();
 
         DinoGame();
     };
