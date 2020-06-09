@@ -32,6 +32,7 @@ namespace Games{
             double height;
             double duckHeight;
             double width;
+            int duckTimeout;
             void gravity();
             void jump();
             void duck();
