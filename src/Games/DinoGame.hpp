@@ -16,8 +16,8 @@ namespace Games{
             sf::Texture texture;
             sf::RectangleShape body;
 
-            float_t getTarget(int);
-            bool move(float_t);
+            double getTarget(int);
+            bool move(double);
             obsticle();
             
         };
@@ -27,11 +27,11 @@ namespace Games{
             sf::RectangleShape body;
             bool isJumping = true;
             bool isDucking = false;
-            float_t y;
-            float_t vy;
-            float_t height;
-            float_t duckHeight;
-            float_t width;
+            double y;
+            double vy;
+            double height;
+            double duckHeight;
+            double width;
             int duckTimeout;
             void gravity();
             void jump();
@@ -48,10 +48,10 @@ namespace Games{
         bool knowsHowToJump = false;
         bool wereTouching;
         int countdown = 45;
-        std::vector<float_t> target{0,0};
+        std::vector<double> target{0,0};
         void reset();
-        float_t speed;
-        float_t score;
+        double speed;
+        double score;
         void move();
         void logistics();
         void start();

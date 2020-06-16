@@ -22,23 +22,23 @@ namespace Jimmy{
             static const TransferFunction softmax; // TO DO
         private:
             // Functions and derivatives to put inside TransfotmationFunction
-            static float_t TANH(const float_t&);
-            static float_t DERTANH(const float_t&);
+            static double TANH(const double&);
+            static double DERTANH(const double&);
             
-            static float_t SIGMOID(const float_t&);
-            static float_t DERSIGMOID(const float_t&);
+            static double SIGMOID(const double&);
+            static double DERSIGMOID(const double&);
 
-            static float_t FASTSIGMOID(const float_t&);
+            static double FASTSIGMOID(const double&);
                 // DERFASTSIGMOID IS THE SAME AS DERTANH
 
-            static float_t LINEAR(const float_t&);
-            static float_t DERLINEAR(const float_t&);
+            static double LINEAR(const double&);
+            static double DERLINEAR(const double&);
 
-            static float_t RELU(const float_t&);
-            static float_t DERRELU(const float_t&);
+            static double RELU(const double&);
+            static double DERRELU(const double&);
 
-            static float_t SOFTMAX(const float_t&); // TO DO
-            static float_t DERSOFTMAX(const float_t&); // TO DO
+            static double SOFTMAX(const double&); // TO DO
+            static double DERSOFTMAX(const double&); // TO DO
         };
 
 
@@ -50,10 +50,10 @@ namespace Jimmy{
             static const LossFunction scce; // TO DO
 
         private:
-            static float_t RMSE(const std::vector<float_t>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
-            static float_t BCE(const std::vector<float_t>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
-            static float_t CCE(const std::vector<float_t>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
-            static float_t SCCE(const std::vector<float_t>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
+            static double RMSE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
+            static double BCE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
+            static double CCE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
+            static double SCCE(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&);
         };
     };
 }

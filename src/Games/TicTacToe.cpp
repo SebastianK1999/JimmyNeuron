@@ -79,7 +79,7 @@ void Games::TicTacToe::gameSim(){
     
     std::vector<int> badIndexes{};
     std::vector<int> unusedIndexes{};
-    float_t maxVal = this->NeuralNet.getResult(0);
+    double maxVal = this->NeuralNet.getResult(0);
     int index = 0;
 
     int activeNeuronsCount = 0;

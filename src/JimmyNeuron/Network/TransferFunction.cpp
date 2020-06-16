@@ -1,13 +1,13 @@
 #include "TransferFunction.hpp"
 
-float_t Jimmy::TransferFunction::run(const float_t& neuronOutput){
+double Jimmy::TransferFunction::run(const double& neuronOutput){
     return this->foo(neuronOutput);
 }
-float_t Jimmy::TransferFunction::runDervative(const float_t& neuronResult){
+double Jimmy::TransferFunction::runDervative(const double& neuronResult){
     return this->derivativeFoo(neuronResult);
 }
 
-Jimmy::TransferFunction::TransferFunction(float_t (*function)(const float_t&), float_t (*derFoo)(const float_t&)){
+Jimmy::TransferFunction::TransferFunction(double (*function)(const double&), double (*derFoo)(const double&)){
     this->foo = function;
     this->derivativeFoo = derFoo; 
 }

@@ -16,7 +16,7 @@ namespace Games{
         sf::Text textL2;
         Jimmy::Net NeuralNet;
         Jimmy::Critic critic;
-        std::vector<float_t> board{0,0,0,  0,0,0,  0,0,0};
+        std::vector<double> board{0,0,0,  0,0,0,  0,0,0};
         sf::RectangleShape red;
         sf::RectangleShape blue;
         int checkWin();

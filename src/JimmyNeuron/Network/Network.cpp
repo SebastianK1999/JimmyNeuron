@@ -1,6 +1,6 @@
 #include "Network.hpp"
 
-Jimmy::Net::Net(std::vector<int> vec,const Jimmy::TransferFunction& transFoo,const Jimmy::LossFunction& lossFoo, float_t learningrate):
+Jimmy::Net::Net(std::vector<int> vec,const Jimmy::TransferFunction& transFoo,const Jimmy::LossFunction& lossFoo, double learningrate):
     transFunc(transFoo),
     lossFunc(lossFoo)
 {  
@@ -20,7 +20,7 @@ Jimmy::Net::Net(std::vector<int> vec,const Jimmy::TransferFunction& transFoo,con
     }
 }
 
-void Jimmy::Net::feedForward(const std::vector<float_t>& inputs){
+void Jimmy::Net::feedForward(const std::vector<double>& inputs){
     assert(inputs.size() == this->layers[0].neurons.size());
 
     for(int i = 0; i < this->layers[0].neurons.size(); i++){
@@ -33,9 +33,9 @@ void Jimmy::Net::feedForward(const std::vector<float_t>& inputs){
     }
 }
 
-void Jimmy::Net::backProp(const std::vector<float_t>& realValues){
+void Jimmy::Net::backProp(const std::vector<double>& realValues){
     // network gradient 
-    float_t error = this->lossFunc.run(realValues, this->outputReferences);
+    double error = this->lossFunc.run(realValues, this->outputReferences);
     this->averageError = (this->averageError * 100 + error) / (100 + 1.0);
 
     // output gradient
@@ -46,7 +46,7 @@ void Jimmy::Net::backProp(const std::vector<float_t>& realValues){
     // hiden gradient
     for(int i = this->layers.size()-2; i > 0; i--){
         for(int j = 0; j < this->layers[i].neurons.size(); j++){
-            float_t sumGradientWeights = 0.0;
+            double sumGradientWeights = 0.0;
             for(int k = 0; k < this->layers[i+1].neurons.size(); k++){
                 sumGradientWeights += this->layers[i+1][k].inputWeights[j] * this->layers[i+1][k].gradient;
             }
@@ -62,13 +62,13 @@ void Jimmy::Net::backProp(const std::vector<float_t>& realValues){
     }
 }
 
-const float_t& Jimmy::Net::getResult(unsigned int i) const {
+const double& Jimmy::Net::getResult(unsigned int i) const {
     return this->outputValuesReferences[i];
 }
-const std::vector<std::reference_wrapper<float_t>>& Jimmy::Net::getResult() const {
+const std::vector<std::reference_wrapper<double>>& Jimmy::Net::getResult() const {
     return this->outputValuesReferences;
 }
 
-float_t Jimmy::Net::getLoss() const{
+double Jimmy::Net::getLoss() const{
     return this->averageError;
 }

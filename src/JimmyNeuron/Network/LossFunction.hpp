@@ -9,12 +9,12 @@
 namespace Jimmy{
     class LossFunction{
     private:
-        float_t (*foo)(const std::vector<float_t>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&); // Main-class function
-        float_t error; // Result of the main-class function
+        double (*foo)(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&); // Main-class function
+        double error; // Result of the main-class function
     public:
-        float_t run(const std::vector<float_t>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&); // Executes Class-main function, saves the error and returns it
-        float_t getError()const; // Outputs error calculededbu the run function
-        LossFunction(float_t (*)(const std::vector<float_t>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&));
+        double run(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&); // Executes Class-main function, saves the error and returns it
+        double getError()const; // Outputs error calculededbu the run function
+        LossFunction(double (*)(const std::vector<double>&, const std::vector<std::reference_wrapper<Jimmy::NEURON>>&));
         LossFunction(const LossFunction&);
         void operator=(const LossFunction&);
     };

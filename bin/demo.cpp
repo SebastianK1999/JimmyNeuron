@@ -12,17 +12,17 @@ using namespace std;
 
 int main(){
 #ifdef DEV_GAME  
-    //Games::DinoGame game;
-    //game.start();
-    Games::TicTacToe game2;
-    game2.start();
+    Games::DinoGame game;
+    game.start();
+    //Games::TicTacToe game2;
+    //game2.start();
 
 #else
 #ifdef DEV_NET
     std::vector<int> topology{2,5,1}; // defying how many neurons will be craerted in each layer
     Jimmy::Net mynet(topology, Jimmy::Methods::transFuncs::tanh, Jimmy::Methods::lossFuncs::rmse, 0.01);
-    vector<float_t> inp = {0, 0};
-    vector<float_t> prop = {0};
+    vector<double> inp = {0, 0};
+    vector<double> prop = {0};
     Jimmy::Critic critic(mynet);
     critic.chooseAll();
     for(int i = 0; true; i++){ // Test Program if the net cac se the result of "f(n1,n2,n3,n4) = (n1 && n2) ^ (n3 && n4)""

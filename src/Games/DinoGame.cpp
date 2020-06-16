@@ -67,7 +67,7 @@ Games::DinoGame::obsticle::obsticle(){
 
 }
 
-bool Games::DinoGame::obsticle::move(float_t speed){
+bool Games::DinoGame::obsticle::move(double speed){
     this->body.setPosition(sf::Vector2f(this->body.getPosition().x - speed, this->body.getPosition().y));
     if(this->body.getPosition().x < 0){
         this->body.setPosition(sf::Vector2f(500,this->body.getPosition().y));
@@ -84,13 +84,13 @@ void Games::DinoGame::reset(){
 }
 
 void Games::DinoGame::gameSim(){
-    this->NeuralNet.feedForward( std::vector<float_t>{(float_t) (this->p.isJumping || this->p.isDucking),(float_t) this->obsts.body.getPosition().x/250, (float_t) (this->obsts.body.getPosition().y == 175)} );
+    this->NeuralNet.feedForward( std::vector<double>{(double) (this->p.isJumping || this->p.isDucking),(double) this->obsts.body.getPosition().x/250, (double) (this->obsts.body.getPosition().y == 175)} );
     critic.chooseLowest();
     critic.recordMove();
 
     if(this->NeuralNet.getResult(0) > 0.5 && this->NeuralNet.getResult(1) > 0.5){
         std::cout <<"\x1b[43mInvalid move\x1b[0m\n";
-        this->critic.chooseActive();
+        this->critic.chooseAll();
         this->critic.punish();
         this->reset();
         this->p.reset();

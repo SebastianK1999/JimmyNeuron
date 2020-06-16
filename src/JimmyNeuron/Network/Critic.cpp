@@ -8,16 +8,16 @@ Jimmy::Critic::~Critic(){
     delete this->recPointer;
 }
 
-void Jimmy::Critic::reward(float_t power){
+void Jimmy::Critic::reward(double power){
     this->backProp(power,1);
     this->recPointer->clear();
 }
-void Jimmy::Critic::punish(float_t power){
+void Jimmy::Critic::punish(double power){
     this->backProp(power,-1);
     this->recPointer->clear();
 }
 
-int Jimmy::Critic::logicValue(const float_t& output){
+int Jimmy::Critic::logicValue(const double& output){
     if(output >= this->trigger){
         return 1;
     }
@@ -35,7 +35,7 @@ void Jimmy::Critic::recordMove(){
         }
     }
     if(moveMade){
-        this->recPointer->inputs.push_back(std::vector<float_t>{});
+        this->recPointer->inputs.push_back(std::vector<double>{});
         this->recPointer->outputIndexes.push_back(std::vector<int>{});
 
         for(int i = 0; i < this->networkPointer->layers[0].neurons.size(); i++){
@@ -51,7 +51,7 @@ void Jimmy::Critic::recordMove(){
 }
 
 void Jimmy::Critic::record(){
-    this->recPointer->inputs.push_back(std::vector<float_t>{});
+    this->recPointer->inputs.push_back(std::vector<double>{});
     this->recPointer->inputs.reserve(this->networkPointer->layers[0].neurons.size());
 
     this->recPointer->outputIndexes.push_back(std::vector<int>{});
@@ -87,7 +87,7 @@ void Jimmy::Critic::replay(int recordIndex){
     this->chooseSelected(this->recPointer->outputIndexes[recordIndex]);
 }
 
-void Jimmy::Critic::punishRecords(float_t power){
+void Jimmy::Critic::punishRecords(double power){
     if(this->recPointer->inputs.size() > 0){
 
         this->recPointer->saveInputWeights(this->networkPointer);
@@ -103,7 +103,7 @@ void Jimmy::Critic::punishRecords(float_t power){
     this->recPointer->clear();
 }
 
-void Jimmy::Critic::rewardRecords(float_t power){
+void Jimmy::Critic::rewardRecords(double power){
     if(this->recPointer->inputs.size() > 0){
         this->recPointer->saveInputWeights(this->networkPointer);
         for(int recordIndex = 0; recordIndex< this->recPointer->inputs.size(); recordIndex++){
@@ -118,16 +118,16 @@ void Jimmy::Critic::rewardRecords(float_t power){
 }
 
 
-void Jimmy::Critic::backProp(float_t power, int treat){
+void Jimmy::Critic::backProp(double power, int treat){
     // creating vector of desired values
-    std::vector<float_t> desiredValues;
+    std::vector<double> desiredValues;
     desiredValues.reserve(this->watchListNeurons.size());
     for(int i = 0; i < this->watchListNeurons.size(); i++){
         desiredValues.push_back(this->logicValue(this->watchListNeurons[i].get().outValue) * treat);
     }
 
     // network gradient
-    float_t error = this->networkPointer->lossFunc.run(desiredValues, this->watchListNeurons);
+    double error = this->networkPointer->lossFunc.run(desiredValues, this->watchListNeurons);
     this->networkPointer->averageError = (this->networkPointer->averageError * 100 + error) / (100 + 1.0);
 
     // output gradient
@@ -138,7 +138,7 @@ void Jimmy::Critic::backProp(float_t power, int treat){
     // hiden gradient
     int i = this->networkPointer->layers.size()-2; // hiden gradient [-2]
     for(int j = 0; j < this->networkPointer->layers[i].neurons.size(); j++){
-        float_t sumGradientWeights = 0.0;
+        double sumGradientWeights = 0.0;
         for(int k = 0; k < this->watchListNeurons.size(); k++){
             sumGradientWeights += this->watchListNeurons[k].get().inputWeights[j] * this->watchListNeurons[k].get().gradient;
         }
@@ -146,7 +146,7 @@ void Jimmy::Critic::backProp(float_t power, int treat){
     }
     for(int i = this->networkPointer->layers.size()-3; i > 0; i--){ // hiden gradient [1:-3]
         for(int j = 0; j < this->networkPointer->layers[i].neurons.size(); j++){
-            float_t sumGradientWeights = 0.0;
+            double sumGradientWeights = 0.0;
             for(int k = 0; k < this->networkPointer->layers[i+1].neurons.size(); k++){
                 sumGradientWeights += this->networkPointer->layers[i+1][k].inputWeights[j] * this->networkPointer->layers[i+1][k].gradient;
             }
@@ -165,16 +165,16 @@ void Jimmy::Critic::backProp(float_t power, int treat){
     }
 }
 
-void Jimmy::Critic::backPropRecords(float_t power, int treat, int recordIndex){
+void Jimmy::Critic::backPropRecords(double power, int treat, int recordIndex){
     // creating vector of desired values
-    std::vector<float_t> desiredValues;
+    std::vector<double> desiredValues;
     desiredValues.reserve(this->watchListNeurons.size());
     for(int i = 0; i < this->watchListNeurons.size(); i++){
         desiredValues.push_back(this->logicValue(this->watchListNeurons[i].get().outValue) * treat);
     }
 
     // network gradient
-    float_t error = this->networkPointer->lossFunc.run(desiredValues, this->watchListNeurons);
+    double error = this->networkPointer->lossFunc.run(desiredValues, this->watchListNeurons);
     this->networkPointer->averageError = (this->networkPointer->averageError * 100 + error) / (100 + 1.0);
 
     // output gradient
@@ -185,7 +185,7 @@ void Jimmy::Critic::backPropRecords(float_t power, int treat, int recordIndex){
     // hiden gradient
     int i = this->networkPointer->layers.size()-2; // hiden gradient [-2]
     for(int j = 0; j < this->networkPointer->layers[i].neurons.size(); j++){
-        float_t sumGradientWeights = 0.0;
+        double sumGradientWeights = 0.0;
         for(int k = 0; k < this->watchListNeurons.size(); k++){
             sumGradientWeights += this->recPointer->inputWeights.back()[k].inputWeightsRecords[j] * this->watchListNeurons[k].get().gradient;
         }
@@ -193,7 +193,7 @@ void Jimmy::Critic::backPropRecords(float_t power, int treat, int recordIndex){
     }
     for(int i = this->networkPointer->layers.size()-3; i > 0; i--){ // hiden gradient [1:-3]
         for(int j = 0; j < this->networkPointer->layers[i].neurons.size(); j++){
-            float_t sumGradientWeights = 0.0;
+            double sumGradientWeights = 0.0;
             for(int k = 0; k < this->networkPointer->layers[i+1].neurons.size(); k++){
                 sumGradientWeights += this->recPointer->inputWeights[i+1][k].inputWeightsRecords[j] * this->networkPointer->layers[i+1][k].gradient;
             }

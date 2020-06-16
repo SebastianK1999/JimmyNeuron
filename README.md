@@ -35,8 +35,8 @@ Library supports Back Propagation algorythym and critic learning.
         Jimmy::Net mynet(topology, Jimmy::Methods::transFuncs::linear, Jimmy::Methods::lossFuncs::rmse, 0.01);
 
         // defying inputs, and desired outputs
-        vector<float_t> inp = {0, 0};
-        vector<float_t> prop = {0};
+        vector<double> inp = {0, 0};
+        vector<double> prop = {0};
 
         // passing inputs and desired outputs for network to learn 
         mynet.feedForward(inp);
@@ -49,8 +49,8 @@ Library supports Back Propagation algorythym and critic learning.
 
 ### Other examples
     // create new type of TransferFunction
-    float_t foo(float_t weightedSum) //{ return some formula;}
-    float_t derivativeFoo(float_t weightedSum, float_t fooOutput) //{ return some derivative formula;}
+    double foo(double weightedSum) //{ return some formula;}
+    double derivativeFoo(double weightedSum, double fooOutput) //{ return some derivative formula;}
 
     //create instance of a new TransferFunctionM
     const TransferFunction(foo, derivativeFoo);

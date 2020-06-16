@@ -21,20 +21,20 @@ namespace Jimmy{
         Jimmy::RECORDS_IO* recPointer; // heap alcated pointer
 
         std::vector<std::reference_wrapper<Jimmy::NEURON>> watchListNeurons; // vector of neurons that critic tries to lean 
-        void backProp(float_t,int); // modified backProp algorythym. supports wotchlist neurons
-        void backPropRecords(float_t,int,int); // modified backProp algorythym. supports wotchlist neurons
-        float_t trigger = 0.5; // constant that sets the poit in whitch the output logic value changes
-        int logicValue(const float_t&); // convets output to posible desired output
+        void backProp(double,int); // modified backProp algorythym. supports wotchlist neurons
+        void backPropRecords(double,int,int); // modified backProp algorythym. supports wotchlist neurons
+        double trigger = 0.5; // constant that sets the poit in whitch the output logic value changes
+        int logicValue(const double&); // convets output to posible desired output
         void replay(int recordIndex); // feed forward but works on recored data 
 
         public:
         void recordMove(); // saves input and output od the net
         void record(); // saves input and output od the net
         void clearRecords(); // Clears records in case of net winingg or losing;
-        void rewardRecords(float_t = 1); // rewards based on good preformance with no errors
-        void punishRecords(float_t = 1); // punishes based on bad preformance with no errors
-        void reward(float_t = 1); // reward watchlist neurons titsh bacprop
-        void punish(float_t = 1); // punish watchlist neurons titsh bacprop
+        void rewardRecords(double = 1); // rewards based on good preformance with no errors
+        void punishRecords(double = 1); // punishes based on bad preformance with no errors
+        void reward(double = 1); // reward watchlist neurons titsh bacprop
+        void punish(double = 1); // punish watchlist neurons titsh bacprop
 
         void chooseHighest(); // puts neuron with the highest output on the watch list
         void chooseActive(); // puts neurons thar are activated on a watchlist;
