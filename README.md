@@ -29,14 +29,14 @@ Library supports Back Propagation algorythym and critic learning.
 
     int main(){
         // defying how many neurons will be craerted in each layer
-        std::vector<unsigned int> topology{2,10,1}; 
+        std::vector<int> topology{2,10,1}; 
 
         // creates Net instance
         Jimmy::Net mynet(topology, Jimmy::Methods::transFuncs::linear, Jimmy::Methods::lossFuncs::rmse, 0.01);
 
         // defying inputs, and desired outputs
-        vector<double> inp = {0, 0};
-        vector<double> prop = {0};
+        vector<float_t> inp = {0, 0};
+        vector<float_t> prop = {0};
 
         // passing inputs and desired outputs for network to learn 
         mynet.feedForward(inp);
@@ -49,8 +49,8 @@ Library supports Back Propagation algorythym and critic learning.
 
 ### Other examples
     // create new type of TransferFunction
-    double foo(double weightedSum) //{ return some formula;}
-    double derivativeFoo(double weightedSum, double fooOutput) //{ return some derivative formula;}
+    float_t foo(float_t weightedSum) //{ return some formula;}
+    float_t derivativeFoo(float_t weightedSum, float_t fooOutput) //{ return some derivative formula;}
 
     //create instance of a new TransferFunctionM
     const TransferFunction(foo, derivativeFoo);

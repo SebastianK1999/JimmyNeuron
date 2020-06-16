@@ -1,21 +1,26 @@
 #include "Network.hpp"
 
-Jimmy::Net::Net(std::vector<unsigned int> vec,const Jimmy::TransferFunction& transFoo,const Jimmy::LossFunction& lossFoo, double learningrate):
+Jimmy::Net::Net(std::vector<int> vec,const Jimmy::TransferFunction& transFoo,const Jimmy::LossFunction& lossFoo, float_t learningrate):
     transFunc(transFoo),
     lossFunc(lossFoo)
 {  
+    
     this->learningRate = learningrate;
-    this->layers.push_back(Jimmy::LAYER(vec[0])); // initializes imput layer
+    this->layers.reserve(vec.size());
+    this->layers.emplace_back(Jimmy::LAYER(vec[0])); // initializes imput layer
     for(int i = 1; i < vec.size(); i++){ // does the rest and sets theri connections
-        this->layers.push_back(Jimmy::LAYER(vec[i], this->layers.back()));
+        assert(vec[i] >= 0);
+        this->layers.emplace_back(Jimmy::LAYER(vec[i], this->layers.back()));
     }
-    for(int i = 0; i <  this->layers.back().neurons.size(); i++){
-        this->outputValuesReferences.push_back(this->layers.back().neurons[i].outValue);
-        this->outputReferences.push_back(this->layers.back().neurons[i]);
+    this->outputValuesReferences.reserve(vec.back());
+    this->outputReferences.reserve(vec.back());
+    for(int i = 0; i <  vec.back(); i++){
+        this->outputValuesReferences.emplace_back(this->layers.back().neurons[i].outValue);
+        this->outputReferences.emplace_back(this->layers.back().neurons[i]);
     }
 }
 
-void Jimmy::Net::feedForward(const std::vector<double>& inputs){
+void Jimmy::Net::feedForward(const std::vector<float_t>& inputs){
     assert(inputs.size() == this->layers[0].neurons.size());
 
     for(int i = 0; i < this->layers[0].neurons.size(); i++){
@@ -28,9 +33,9 @@ void Jimmy::Net::feedForward(const std::vector<double>& inputs){
     }
 }
 
-void Jimmy::Net::backProp(const std::vector<double>& realValues){
+void Jimmy::Net::backProp(const std::vector<float_t>& realValues){
     // network gradient 
-    double error = this->lossFunc.run(realValues, this->outputReferences);
+    float_t error = this->lossFunc.run(realValues, this->outputReferences);
     this->averageError = (this->averageError * 100 + error) / (100 + 1.0);
 
     // output gradient
@@ -41,7 +46,7 @@ void Jimmy::Net::backProp(const std::vector<double>& realValues){
     // hiden gradient
     for(int i = this->layers.size()-2; i > 0; i--){
         for(int j = 0; j < this->layers[i].neurons.size(); j++){
-            double sumGradientWeights = 0.0;
+            float_t sumGradientWeights = 0.0;
             for(int k = 0; k < this->layers[i+1].neurons.size(); k++){
                 sumGradientWeights += this->layers[i+1][k].inputWeights[j] * this->layers[i+1][k].gradient;
             }
@@ -57,13 +62,13 @@ void Jimmy::Net::backProp(const std::vector<double>& realValues){
     }
 }
 
-const double& Jimmy::Net::getResult(int i) const {
+const float_t& Jimmy::Net::getResult(unsigned int i) const {
     return this->outputValuesReferences[i];
 }
-const std::vector<std::reference_wrapper<double>>& Jimmy::Net::getResult() const {
+const std::vector<std::reference_wrapper<float_t>>& Jimmy::Net::getResult() const {
     return this->outputValuesReferences;
 }
 
-double Jimmy::Net::getLoss() const{
+float_t Jimmy::Net::getLoss() const{
     return this->averageError;
 }

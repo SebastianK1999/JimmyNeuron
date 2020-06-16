@@ -1,12 +1,12 @@
 #include "Layer.hpp"
 
-Jimmy::LAYER::LAYER(unsigned int size){
+Jimmy::LAYER::LAYER(int size){
     for(int i = 0; i < size; i++){
         this->neurons.push_back(Jimmy::NEURON(i));
     }
 }
 
-Jimmy::LAYER::LAYER(unsigned int size, Jimmy::LAYER & layer){
+Jimmy::LAYER::LAYER(int size, Jimmy::LAYER & layer){
     for(int i = 0; i < size; i++){
         this->neurons.push_back(Jimmy::NEURON(i,layer.neurons));
     }

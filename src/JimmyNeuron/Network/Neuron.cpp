@@ -30,8 +30,8 @@ Jimmy::NEURON::NEURON(int index, std::vector<Jimmy::NEURON>& refNeurons)
 {
     for(int i = 0; i < refNeurons.size(); i++){
         this->inputValuePointers.push_back(&(refNeurons[i].outValue));
-        this->inputWeights.push_back(Jimmy::Misc::rand::get().Double());
-        this->selfWeight = Jimmy::Misc::rand::get().Double();
+        this->inputWeights.push_back(Jimmy::Misc::rand::get().Decim());
+        this->selfWeight = Jimmy::Misc::rand::get().Decim();
         this->gradient = 0.0;
         this->deltaWeights.push_back(0.0);
     }

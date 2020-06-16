@@ -21,8 +21,8 @@ namespace Jimmy{
         std::uniform_int_distribution<int> disBinary; 
         std::uniform_int_distribution<int> disMaxInt;
         std::uniform_int_distribution<int> disAllInt;
-        // double distributors
-        std::uniform_real_distribution<double> disZeroOneDouble;
+        // float_t distributors
+        std::uniform_real_distribution<float_t> disZeroOnefloat_t;
         
         public:
         static rand& get();
@@ -33,13 +33,13 @@ namespace Jimmy{
         int randInt(int n, int N); // returns number in range
         int randInt(int N); // returns number in range from 0 to N
 
-        double Double(); // returns number from 0.0 to 1.0
-        double Double(double,double); // returns number in range
-        double Double(double); // returns number in range from 0 to N
+        float_t Decim(); // returns number from 0.0 to 1.0
+        float_t Decim(float_t,float_t); // returns number in range
+        float_t Decim(float_t); // returns number in range from 0 to N
 
         };
         
-        double calculateTheAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything();
+        float_t calculateTheAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything();
     } // end Misc
 } // end Jimmy
 

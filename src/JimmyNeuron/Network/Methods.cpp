@@ -3,41 +3,41 @@
 // TransferFunctions
 
 //      TANH
-double Jimmy::Methods::transFuncs::TANH(const double& x){
+float_t Jimmy::Methods::transFuncs::TANH(const float_t& x){
     return std::tanh(x);
 }
-double Jimmy::Methods::transFuncs::DERTANH(const double& r){
+float_t Jimmy::Methods::transFuncs::DERTANH(const float_t& r){
     return 1 - r * r;
 } 
 const Jimmy::TransferFunction Jimmy::Methods::transFuncs::tanh = TransferFunction(Methods::transFuncs::TANH,Methods::transFuncs::DERTANH);
 
 
 //      Sigmiod
-double Jimmy::Methods::transFuncs::SIGMOID(const double& x){
+float_t Jimmy::Methods::transFuncs::SIGMOID(const float_t& x){
     return x/(1 + abs(-x)) + 0.5;
 }
-double Jimmy::Methods::transFuncs::DERSIGMOID(const double& r){
+float_t Jimmy::Methods::transFuncs::DERSIGMOID(const float_t& r){
     return r * (1 - r);
 }
 const Jimmy::TransferFunction Jimmy::Methods::transFuncs::sigmoid = TransferFunction(Methods::transFuncs::SIGMOID,Methods::transFuncs::DERSIGMOID);
 
 //      Fast Sigmiod
-double Jimmy::Methods::transFuncs::FASTSIGMOID(const double& x){
+float_t Jimmy::Methods::transFuncs::FASTSIGMOID(const float_t& x){
     return x/(1 + abs(-x));
 }
 const Jimmy::TransferFunction Jimmy::Methods::transFuncs::fastSigmoid = TransferFunction(Methods::transFuncs::FASTSIGMOID,Methods::transFuncs::DERTANH);
 
 //      Linear
-double Jimmy::Methods::transFuncs::LINEAR(const double& x){
+float_t Jimmy::Methods::transFuncs::LINEAR(const float_t& x){
     return x;
 }
-double Jimmy::Methods::transFuncs::DERLINEAR(const double& r){
+float_t Jimmy::Methods::transFuncs::DERLINEAR(const float_t& r){
     return 1;
 }
 const Jimmy::TransferFunction Jimmy::Methods::transFuncs::linear = TransferFunction(Methods::transFuncs::LINEAR,Methods::transFuncs::DERLINEAR);
 
 // //      Piecewise Linear
-// double Jimmy::Methods::transFuncs::LINEAR(const double& x){
+// float_t Jimmy::Methods::transFuncs::LINEAR(const float_t& x){
 //     if(x >= -1 && x <= 1){
 //         return x;
 //     }
@@ -46,7 +46,7 @@ const Jimmy::TransferFunction Jimmy::Methods::transFuncs::linear = TransferFunct
 //     }
 //     return -1;
 // }
-// double Jimmy::Methods::transFuncs::DERLINEAR(const double& r){
+// float_t Jimmy::Methods::transFuncs::DERLINEAR(const float_t& r){
 //     if (x >= -1 && x <= 1){
 //         return 1;
 //     }
@@ -55,13 +55,13 @@ const Jimmy::TransferFunction Jimmy::Methods::transFuncs::linear = TransferFunct
 // const Jimmy::TransferFunction Jimmy::Methods::transFuncs::linear = TransferFunction(Methods::transFuncs::LINEAR,Methods::transFuncs::DERLINEAR);
 
 //      ReLU
-double Jimmy::Methods::transFuncs::RELU(const double& x){
+float_t Jimmy::Methods::transFuncs::RELU(const float_t& x){
     if (x >= 0){
         return x;
     }
     return 0;
 }
-double Jimmy::Methods::transFuncs::DERRELU(const double& r){
+float_t Jimmy::Methods::transFuncs::DERRELU(const float_t& r){
     if (r >= 0){
         return 1;
     }
@@ -70,13 +70,13 @@ double Jimmy::Methods::transFuncs::DERRELU(const double& r){
 const Jimmy::TransferFunction Jimmy::Methods::transFuncs::reLU = TransferFunction(Methods::transFuncs::RELU,Methods::transFuncs::DERRELU);
 
 //      Softmax
-double Jimmy::Methods::transFuncs::SOFTMAX(const double& x){
+float_t Jimmy::Methods::transFuncs::SOFTMAX(const float_t& x){
     if (x >= 0){
         return x;
     }
     return 0;
 }
-double Jimmy::Methods::transFuncs::DERSOFTMAX(const double& r){
+float_t Jimmy::Methods::transFuncs::DERSOFTMAX(const float_t& r){
     if (r >= 0){
         return 1;
     }
@@ -90,8 +90,8 @@ const Jimmy::TransferFunction Jimmy::Methods::transFuncs::softmax = TransferFunc
 // LossFunctions
 
 //      RMSE
-double Jimmy::Methods::lossFuncs::RMSE(const std::vector<double>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
-    double rmseError = 0;
+float_t Jimmy::Methods::lossFuncs::RMSE(const std::vector<float_t>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
+    float_t rmseError = 0;
     for(int i = 0; i < outputLayer.size(); i++){
        rmseError += pow(outputLayer[i].get().outValue - realValue[i], 2);
     }
@@ -101,8 +101,8 @@ double Jimmy::Methods::lossFuncs::RMSE(const std::vector<double>& realValue,cons
 const Jimmy::LossFunction Jimmy::Methods::lossFuncs::rmse = LossFunction(Methods::lossFuncs::RMSE);
 
 //      BCE
-double Jimmy::Methods::lossFuncs::BCE(const std::vector<double>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
-    double bceError;
+float_t Jimmy::Methods::lossFuncs::BCE(const std::vector<float_t>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
+    float_t bceError;
     for(int i = 0; i < outputLayer.size(); i++){
         if(realValue[i] == 1){
             bceError += log(outputLayer[i].get().outValue);
@@ -117,8 +117,8 @@ double Jimmy::Methods::lossFuncs::BCE(const std::vector<double>& realValue,const
 const Jimmy::LossFunction Jimmy::Methods::lossFuncs::bce = LossFunction(Methods::lossFuncs::BCE);
 
 //      CCE
-double Jimmy::Methods::lossFuncs::CCE(const std::vector<double>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
-    double cceError;
+float_t Jimmy::Methods::lossFuncs::CCE(const std::vector<float_t>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
+    float_t cceError;
     for(int i = 0; i < outputLayer.size(); i++){
         cceError += - realValue[i] * log(outputLayer[i].get().outValue);
     }
@@ -128,8 +128,8 @@ double Jimmy::Methods::lossFuncs::CCE(const std::vector<double>& realValue,const
 const Jimmy::LossFunction Jimmy::Methods::lossFuncs::cce = LossFunction(Methods::lossFuncs::CCE);
 
 //      SCCE
-/*double Jimmy::Methods::lossFuncs::SCCE(const std::vector<double>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
-    double bce_error;
+/*float_t Jimmy::Methods::lossFuncs::SCCE(const std::vector<float_t>& realValue,const std::vector<std::reference_wrapper<Jimmy::NEURON>>& outputLayer){
+    float_t bce_error;
     for(int i = 0; i < outputLayer.size(); i++){
         if(realValue[i] == 1){
             bce_error += log(outputLayer[i].get().outValue);

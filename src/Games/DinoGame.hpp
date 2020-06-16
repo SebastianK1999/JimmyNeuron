@@ -1,5 +1,5 @@
-#ifndef GAMES_INCLUDED
-#define GAMES_INCLUDED
+#ifndef GAMES_DINOGAME_INCLUDED
+#define GAMES_DINOGAME_INCLUDED
 
 #include <JimmyNeuron/Jimmy.hpp>
 #include <vector>
@@ -16,8 +16,8 @@ namespace Games{
             sf::Texture texture;
             sf::RectangleShape body;
 
-            double getTarget(int);
-            bool move(double);
+            float_t getTarget(int);
+            bool move(float_t);
             obsticle();
             
         };
@@ -27,11 +27,11 @@ namespace Games{
             sf::RectangleShape body;
             bool isJumping = true;
             bool isDucking = false;
-            double y;
-            double vy;
-            double height;
-            double duckHeight;
-            double width;
+            float_t y;
+            float_t vy;
+            float_t height;
+            float_t duckHeight;
+            float_t width;
             int duckTimeout;
             void gravity();
             void jump();
@@ -48,14 +48,17 @@ namespace Games{
         bool knowsHowToJump = false;
         bool wereTouching;
         int countdown = 45;
-        std::vector<double> target{0,0};
+        std::vector<float_t> target{0,0};
         void reset();
-        double speed;
-        double score;
+        float_t speed;
+        float_t score;
         void move();
         void logistics();
         void start();
         void gameSim();
+        int displayCountdown = 0;
+        sf::Font font;
+        sf::Text text;
 
         DinoGame();
     };
