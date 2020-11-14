@@ -12,10 +12,10 @@ using namespace std;
 
 int main(){
 #ifdef DEV_GAME  
-    Games::DinoGame game;
-    game.start();
-    //Games::TicTacToe game2;
-    //game2.start();
+    //Games::DinoGame game;
+    //game.start();
+    Games::TicTacToe game2;
+    game2.start();
 
 #else
 #ifdef DEV_NET
