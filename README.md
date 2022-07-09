@@ -61,6 +61,3 @@ Library supports Back Propagation algorythym and critic learning.
 1. Uses cmake, to meake it easier to compile
 2. This library needs SFML library to be placed in "src/" directory (at this moment) https://github.com/SFML/SFML
 
-
-###### Artificial neural network by Cookie Core 
-![alt text](res/CookieCoreLogo_100x100.png "Cookie Core logo")
