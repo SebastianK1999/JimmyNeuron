@@ -1,10 +1,10 @@
-# ![alt text](res/jimmy_logo_75p.png "JimmyNeuron logo") 
+# ![alt text](res/jimmy_neuron_logo.png "JimmyNeuron logo") 
 
 ## Simple Neural-Network library for c++
 Library is still under development
 
 ## Features
-This librarty support easy to use and modify alorythyms.
+This library supports easy to use and modify alorythyms.
 
 ### Activation functions
 Libray has some Transrer Functions built in, such as tanh, sigmoid, linear, reLU and softmax.
@@ -54,10 +54,3 @@ Library supports Back Propagation algorythym and critic learning.
 
     //create instance of a new TransferFunctionM
     const TransferFunction(foo, derivativeFoo);
-
-
-## Technologies
-
-1. Uses cmake, to meake it easier to compile
-2. This library needs SFML library to be placed in "src/" directory (at this moment) https://github.com/SFML/SFML
-
