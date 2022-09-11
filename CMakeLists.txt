@@ -1,71 +1,45 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(JimmyNeuron VERSION 0.10)
+project(EvolutionaryRobotics_PredatorPreyModel VERSION 0.10)
+
+if (WIN32) # Include win64 platforms
 
 
-if (WIN32)# AND EXISTS "${CMAKE_CURRENT_BINARY_DIR}/../src/SFML/lib")
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_FLAGS 
+        "/wd4018 /wd4244 /wd4305 
+        /D_CRT_SECURE_NO_WARNINGS 
+        /D_CRT_NONSTDC_NO_DEPRECATE 
+        /D NOMINMAX /DGLEW_STATIC
+        /EHsc"
+     )
 
+    set(VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+    set(CMAKE_EXE_LINKER_FLAGS "/NODEFAULTLIB:\"MSVCRT\" /NODEFAULTLIB:\"LIBCMT\"")
+    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
+    set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 
-    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" )
-    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib" )
-    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib" )
+elseif (APPLE)
 
+    set(CMAKE_MACOSX_RPATH 1)
+    set(CMAKE_CXX_FLAGS "-Wall -pedantic -Wno-deprecated-declarations -Wno-reorder-ctor -Wno-unused-function -Wno-unused-variable -g -stdlib=libc++ -std=c++20")
+    add_definitions(-DAPPLE)
 
-    file(GLOB_RECURSE RES_FILES "res" "res/*")
-    foreach(file ${RES_FILES})
+elseif (UNIX)
 
-        file(RELATIVE_PATH relfile ${CMAKE_SOURCE_DIR} ${file})
-
-        set(newFileName "${relfile}")
-
-        get_filename_component(newFile ${newFileName} DIRECTORY)
-
-        if(NOT EXISTS bin/${newFileName})
-            file(COPY ${file} DESTINATION "bin/${newFile}")
-            message("copy ${relfile}")
-
-            message(" ${file} copied.")
-        elseif(${file} IS_NEWER_THAN bin/${newFileName})
-            file(COPY "${file}" DESTINATION "bin/${newFile}")
-            message("merge ${relfile}")
-        endif()
-        
-        if(NOT EXISTS ${newFileName})
-            file(COPY ${file} DESTINATION ${newFile})
-            message("copy ${relfile}")
-
-            message(" ${file} copied.")
-        elseif(${file} IS_NEWER_THAN ${newFileName})
-            file(COPY "${file}" DESTINATION "${newFile}")
-            message("merge ${relfile}")
-        endif()
-    endforeach()
-
-else()
-
-
-    # it suuposed to copy file if there is a new wersion of it
-    # probably, i still need to change it cause it's not working correctly 
-    file(GLOB_RECURSE RES_FILES "res" "res/*")
-    foreach(file ${RES_FILES})
-
-        file(RELATIVE_PATH relfile ${CMAKE_SOURCE_DIR} ${file})
-
-        set(newFileName "${relfile}")
-
-        get_filename_component(newFile ${newFileName} DIRECTORY)
-
-        if(NOT EXISTS ${newFileName})
-            file(COPY ${file} DESTINATION ${newFile})
-            message("copy ${relfile}")
-
-            message(" ${file} copied.")
-        elseif(${file} IS_NEWER_THAN ${newFileName})
-            file(COPY "${file}" DESTINATION "${newFile}")
-            message("merge ${relfile}")
-        endif()
-    endforeach()
+    set(CMAKE_CXX_FLAGS "-Wall -pedantic -g -std=c++20 -Wno-comment -Wno-sign-compare -Wno-reorder -Wno-unused-function")
+    add_definitions(-DUNIX)
 
 endif()
+SET(JIMMY_NEURON_CORE_LIBS "${JIMMY_NEURON_CORE_LIBS}" CACHE INTERNAL "JIMMY_NEURON_CORE_LIBS")
 
-add_subdirectory(src) # adding libraries
-add_subdirectory(bin) # linking to executable
+add_custom_target(RESOURCES_DIR SOURCES "${CMAKE_CURRENT_LIST_DIR}/res/")
+add_custom_command(TARGET RESOURCES_DIR POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_LIST_DIR}/res/"
+    "${CMAKE_CURRENT_LIST_DIR}/build/res/"
+)   
+
+add_subdirectory("external/") # linking to submodules
+add_subdirectory("submodules/") # linking to submodules
+add_subdirectory("src/") # adding sources
+add_subdirectory("bin/") # adding libraries

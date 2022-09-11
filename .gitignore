@@ -53,6 +53,7 @@ vsbuild/
 wbuild/
 ubuild/
 *.code-workspace
+external/*/
 
 # wszystkie ukryte foldery poza wynienionymi
 .*

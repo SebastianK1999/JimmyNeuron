@@ -1,4 +1,8 @@
-#include "TicTacToe.hpp"
+#ifdef OPTIONAL_LIBRARY_SFML
+
+#include <numeric>
+
+#include "JimmyNeuron/Games/TicTacToe.hpp"
 
 bool Games::TicTacToe::checkFull(){
     int zerosCount = 0;
@@ -58,87 +62,126 @@ void Games::TicTacToe::gameSim(){
     }
     // end of  cleaning
 
-
-    // oponent
+    // opponent
     this->randomMove(-1);
     if(this->checkWin() == -1){
-        std::cout <<"\x1b[41mfailed\x1b[0m\n";
-        this->critic.punishRecords(0.1);
+        std::cout <<"\x1b[41m failed \x1b[0m\n";
+        this->critic.punishRecords();
         this->critic.clearRecords();
         return;
     }
-    // end of oponent
+    // end of opponent
 
+    // cleaning after last round (not loop)
+    if(this->checkWin() != 0 || this->checkFull()){
+        this->reset();
+        return;
+    }
+    // end of  cleaning
 
-
-    
-    this->NeuralNet.feedForward( this->board );
-    this->critic.chooseHighest();
     this->movesInRound++;
-    this->critic.recordMove();
+    ai_turn:
+    this->neuralNet.feedForward( this->board );
+    this->critic.chooseHighest();
     
     std::vector<int> badIndexes{};
     std::vector<int> unusedIndexes{};
-    double maxVal = this->NeuralNet.getResult(0);
-    int index = 0;
-
+    int index = -1;
+    double maxVal;
     int activeNeuronsCount = 0;
-
-    for(int i = 1; i < this->board.size(); i++){
-        if(this->NeuralNet.getResult(i) > maxVal){
-            if(maxVal > 0.5){
-                badIndexes.push_back(index);
-            }
-            unusedIndexes.push_back(index);
+    
+    for(int i = 0; i < 9; i++){
+        if(board[i] == 0){
             index = i;
-            maxVal = this->NeuralNet.getResult(i);
+            maxVal = this->neuralNet.getResult(i);
+            break;
         }
-        else if(this->NeuralNet.getResult(i)  > 0.5){
-            unusedIndexes.push_back(index);
-            activeNeuronsCount++;
-            badIndexes.push_back(index);
-        }
-        else 
-            unusedIndexes.push_back(index);
-
     }
- 
+
+    for(int i = 0; i < 9; i++){
+        if(this->neuralNet.getResult(i) >= 0.5f){
+            activeNeuronsCount++;
+            if(i != index || board[i] != 0){
+                badIndexes.push_back(i);
+            }
+        }
+        else{
+            unusedIndexes.push_back(i);
+        }
+    }
+
+    // for(int i = 0; i< 3;  i++){
+    //     for(int j = 0; j< 3;  j++){
+    //         std::cout << "\t" << board[i*+j];
+    //     }
+    //     std::cout << "\n";
+    // }
+    // std::cout << index << " " << board[index] << " " << maxVal << "\n";
+
+    // for(int i = index+1; i < this->board.size(); i++){
+    //     if(this->neuralNet.getResult(i) > maxVal){
+    //         if(maxVal > 0.5){
+    //             badIndexes.push_back(index);
+    //         }
+    //         unusedIndexes.push_back(index);
+    //         index = i;
+    //         maxVal = this->neuralNet.getResult(i);
+    //         activeNeuronsCount++;
+    //     }
+    //     else if(this->neuralNet.getResult(i)  > 0.5){
+    //         unusedIndexes.push_back(index);
+    //         activeNeuronsCount++;
+    //         badIndexes.push_back(index);
+    //     }
+    //     else 
+    //         unusedIndexes.push_back(index);
+    // }
+
     if(activeNeuronsCount > 1){
         this->critic.chooseSelected(badIndexes);
-        std::cout <<"\x1b[45mMultiple moves\x1b[0m\n";
+        std::cout <<"\x1b[45m Multiple moves \x1b[0m\n";
         this->critic.punish();
-        this->reset();
-        return;
+        badIndexes.clear();
+        unusedIndexes.clear();
+        // this->reset();
+        goto ai_turn;
+        // return;
     }
-
-    //if(maxVal < 0.5){
-    //    std::cout <<"\x1b[45mNo move\x1b[0m\n";
-    //    this->critic.chooseAll();
-    //    this->critic.punish();
-    //    this->reset();
-    //    return;
-    //}
+    else if(maxVal < 0.5){
+       std::cout <<"\x1b[45mNo move\x1b[0m\n";
+       this->critic.chooseAll();
+       this->critic.punish();
+        badIndexes.clear();
+        unusedIndexes.clear();
+        goto ai_turn;
+    }
 
     if(this->board[index] != 0){
-        std::cout <<"\x1b[45mInvalid move\x1b[0m\n";
+        std::cout <<"\x1b[45m Invalid move \x1b[0m\n";
         this->critic.chooseHighest();
-        this->critic.punish(1.0/(this->movesInRound*this->movesInRound));
+        this->critic.punish();
         //this->critic.chooseSelected(unusedIndexes);
         //this->critic.reward(1.0/(this->movesInRound*this->movesInRound));
-        this->reset();
-        return;
+        // this->reset();
+        badIndexes.clear();
+        unusedIndexes.clear();
+        goto ai_turn;
+
+        // return;
     }
     else{
+        this->critic.reward(this->movesInRound);
+        this->critic.recordMove();
         this->board[index] = 1;
     }
 
 
     if(this->checkWin() == 1){
-        std::cout <<"\x1b[42mpassed\x1b[0m\n";
-        this->critic.rewardRecords(1.5);
+        std::cout <<"\x1b[42m passed \x1b[0m\n";
+        this->critic.rewardRecords();
         return;
     }
-    // endo of Jimmy Move
+    // end of Jimmy Move
 
 
 
@@ -146,10 +189,10 @@ void Games::TicTacToe::gameSim(){
 
 void Games::TicTacToe::start(){
     this->reset();
-    std::cout << "stariting TicTacToe\n";
+    std::cout << "starting TicTacToe\n";
     sf::Event event;
 
-    int n = 1000000;
+    // int n = 1000000;
     for(int i = 0; i < 0; i++){
         this->gameSim();
     }
@@ -190,11 +233,11 @@ void Games::TicTacToe::start(){
 }
 
 Games::TicTacToe::TicTacToe():
-NeuralNet(std::vector<int>{9,18,12,9,9} ,Jimmy::Methods::transFuncs::tanh, Jimmy::Methods::lossFuncs::rmse, 0.05),
-critic(NeuralNet)
+neuralNet(std::vector<int>{9,90,40,9} ,Jimmy::Methods::transFuncs::tanh, Jimmy::Methods::lossFuncs::rmse, 0.1),
+critic(neuralNet)
 {   
-    
-    this->font.loadFromFile("../res/arial.ttf");
+    bool ok = true;
+    ok = ok && this->font.loadFromFile("../res/arial.ttf");
     this->textL1.setFont(this->font);
     this->textL1.setString("Hold SPACE to speedup");
     this->textL1.setPosition(sf::Vector2f(5,5));
@@ -205,7 +248,7 @@ critic(NeuralNet)
     this->textL1.setOutlineThickness(1.25);
 
     this->textL2.setFont(this->font);
-    this->textL2.setString("learning prosess");
+    this->textL2.setString("learning process");
     this->textL2.setPosition(sf::Vector2f(5,5+16));
     this->textL2.setCharacterSize(14);
     this->textL2.setStyle(sf::Text::Bold);
@@ -213,7 +256,7 @@ critic(NeuralNet)
     this->textL2.setOutlineColor(sf::Color::White);
     this->textL2.setOutlineThickness(1.25);
 
-    this->Window.create(sf::VideoMode(300,300), "TicTacToe");
+    this->Window.create(sf::VideoMode({300,300}), "TicTacToe");
     this->Window.setFramerateLimit(4);
 
     this->red.setSize(sf::Vector2f(100,100));
@@ -222,4 +265,10 @@ critic(NeuralNet)
     this->blue.setSize(sf::Vector2f(100,100));
     this->blue.setFillColor(sf::Color(0,0,255));
 
+    if(!ok){
+        std::cout << "Error during creation of TicTacToe game\n";
+    }
+
 }
+
+#endif // OPTIONAL_LIBRARY_SFML
