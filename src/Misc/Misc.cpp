@@ -42,21 +42,11 @@ int Jimmy::Misc::rand::randInt(int n, int N) {
 }
 
 // rand double
-<<<<<<< HEAD:src/Misc/Misc.cpp
 double Jimmy::Misc::rand::Decimal() {
     return this->disZeroOneDouble(this->generator);
 }
 double Jimmy::Misc::rand::Decimal(double n, double N) {
-=======
-double Jimmy::Misc::rand::Decim() {
-    return this->disZeroOneDouble(this->generator);
-}
-double Jimmy::Misc::rand::Decim(double n, double N) {
->>>>>>> 014d68cdc4addcc9817bd9ac8fa40f09385d35d0:src/JimmyNeuron/Misc/Misc.cpp
     return this->disZeroOneDouble(this->generator) * (N - n) + n;
-}
-double Jimmy::Misc::rand::Decim(double n, double N) {
-    return this->disZeroOnedouble(this->generator) * (N - n) + n;
 }
 double Jimmy::Misc::rand::Decimal(double N) {
     return this->Decimal(0, N);
