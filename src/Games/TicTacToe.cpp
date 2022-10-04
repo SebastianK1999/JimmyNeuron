@@ -46,7 +46,7 @@ void Games::TicTacToe::reset(){
 
 void Games::TicTacToe::randomMove(int symbol){
     while(true){
-        int index = Jimmy::Misc::rand::get().randInt(9);
+        int index = Jimmy::Misc::rand().randInt(9);
         if(this->board[index] == 0){
             this->board[index] = symbol;
             return;

@@ -85,7 +85,7 @@ bool Games::BeeGame::Obstacle::move(double speed){
 }
 
 void Games::BeeGame::reset(){
-    this->obstacles.body.setPosition(sf::Vector2f(500,175 - 40 * Jimmy::Misc::rand::get().binary()));
+    this->obstacles.body.setPosition(sf::Vector2f(500,175 - 40 * Jimmy::Misc::rand().binary()));
     this->score = 0;
     this->wereTouching = false;
     this->canThink = true;

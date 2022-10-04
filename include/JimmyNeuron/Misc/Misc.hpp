@@ -6,12 +6,11 @@
 
 namespace Jimmy{
     namespace Misc{
-
-        class rand {
+        class MISC_RAND {
         private:
-            rand(const rand&) = delete; // Delete copy constructor
-            rand(); // private constructor
-            static rand staticRand;
+            MISC_RAND(const MISC_RAND&) = delete; // Delete copy constructor
+            MISC_RAND(); // private constructor
+            static MISC_RAND staticRand;
 
             size_t seed;
 
@@ -26,7 +25,7 @@ namespace Jimmy{
             std::uniform_real_distribution<double> disZeroOneDouble;
 
         public:
-            static rand& get();
+            static MISC_RAND& get();
 
             static void setSeed(size_t);
             static void rmSeed();
@@ -38,12 +37,12 @@ namespace Jimmy{
             int randInt(int n, int N); // returns number in range
             int randInt(int N); // returns number in range from 0 to N
 
-            double Decimal(); // returns number from 0.0 to 1.0
-            double Decimal(double, double); // returns number in range
-            double Decimal(double); // returns number in range from 0 to N
+            double decimal(); // returns number from 0.0 to 1.0
+            double decimal(double, double); // returns number in range
+            double decimal(double); // returns number in range from 0 to N
 
         };
-        
         double calculateTheAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything();
+        MISC_RAND& rand();
     } // end Misc
 } // end Jimmy

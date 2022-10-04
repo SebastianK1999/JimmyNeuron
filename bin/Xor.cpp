@@ -13,8 +13,8 @@ int main(){
     Jimmy::Critic critic(myNet);
     critic.chooseAll();
     for(int i = 0; true; i++){ // Test Program if the net cac se the result of "f(n1,n2,n3,n4) = (n1 && n2) ^ (n3 && n4)""
-        inp[0] =  Jimmy::Misc::rand::get().binary(); // new random inputs (0 or 1) 
-        inp[1] =  Jimmy::Misc::rand::get().binary();
+        inp[0] =  Jimmy::Misc::rand().binary(); // new random inputs (0 or 1) 
+        inp[1] =  Jimmy::Misc::rand().binary();
         prop[0] = ((inp[0]>0.5) ^ (inp[1]>0.5)); // crating output target
         
         myNet.feedForward(inp); // running the  net

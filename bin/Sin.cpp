@@ -14,7 +14,7 @@ int main(){
     Jimmy::Critic critic(myNet);
     critic.chooseAll();
     for(int i = 0; true; i++){ // Test Program if the net can predict the result of sin(x)
-        inp[0] =  Jimmy::Misc::rand::get().Decimal(0,6); // new random inputs (0 or 1) =
+        inp[0] =  Jimmy::Misc::rand().decimal(0,6); // new random inputs (0 or 1) =
         prop[0] = sinf(inp[0]); // crating output target
         
         myNet.feedForward(inp); // running the  net
