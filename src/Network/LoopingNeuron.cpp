@@ -32,6 +32,7 @@ Jimmy::LoopingNeuron::LoopingNeuron(const LoopingNeuron& other ) noexcept
 : inputNeuronWeights(other.inputNeuronWeights)
 , hiddenNeuronWeights(other.hiddenNeuronWeights)
 , outputNeuronWeights(other.outputNeuronWeights)
+, memoryNeuronWeights(other.memoryNeuronWeights)
 , bias(other.bias)
 , value(other.value)
 , outputValue(other.outputValue)
@@ -44,6 +45,7 @@ Jimmy::LoopingNeuron::LoopingNeuron(LoopingNeuron&& other) noexcept
 : inputNeuronWeights(std::move(other.inputNeuronWeights))
 , hiddenNeuronWeights(std::move(other.hiddenNeuronWeights))
 , outputNeuronWeights(std::move(other.outputNeuronWeights))
+, memoryNeuronWeights(std::move(other.memoryNeuronWeights))
 , bias(std::move(other.bias))
 , value(std::move(other.value))
 , outputValue(std::move(other.outputValue))
@@ -56,6 +58,7 @@ Jimmy::LoopingNeuron& Jimmy::LoopingNeuron::operator=(const LoopingNeuron& other
     inputNeuronWeights = other.inputNeuronWeights;
     hiddenNeuronWeights = other.hiddenNeuronWeights;
     outputNeuronWeights = other.outputNeuronWeights;
+    memoryNeuronWeights = other.memoryNeuronWeights;
     bias = other.bias;
     value = other.value;
     outputValue = other.outputValue;
@@ -69,6 +72,7 @@ Jimmy::LoopingNeuron& Jimmy::LoopingNeuron::operator=(LoopingNeuron&& other) noe
         inputNeuronWeights = std::move(other.inputNeuronWeights);
         hiddenNeuronWeights = std::move(other.hiddenNeuronWeights);
         outputNeuronWeights = std::move(other.outputNeuronWeights);
+        memoryNeuronWeights = std::move(other.memoryNeuronWeights);
         bias = std::move(other.bias);
         value = std::move(other.value);
         outputValue = std::move(other.outputValue);
@@ -81,10 +85,11 @@ Jimmy::LoopingNeuron::~LoopingNeuron(){
 
 }
 
-Jimmy::LoopingNeuron::LoopingNeuron(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize)
+Jimmy::LoopingNeuron::LoopingNeuron(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, size_t memoryLayerSize)
 : inputNeuronWeights(inputLayerSize)
 , hiddenNeuronWeights(hiddenLayerSize)
 , outputNeuronWeights(outputLayerSize)
+, memoryNeuronWeights(memoryLayerSize)
 , bias(0)
 , value(0)
 , outputValue(0)
@@ -94,7 +99,7 @@ Jimmy::LoopingNeuron::LoopingNeuron(size_t inputLayerSize, size_t hiddenLayerSiz
 }
 
 Jimmy::LoopingNeuron::LoopingNeuron()
-: LoopingNeuron(0,0,0)
+: LoopingNeuron(0,0,0,0)
 {
     
 }

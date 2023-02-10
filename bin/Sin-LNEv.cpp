@@ -13,7 +13,7 @@ int main(){
     std::vector<Jimmy::LoopingNet> networks;
     networks.reserve(6);
     for(int i = 0; i < networks.capacity(); i++){
-        networks.emplace_back(Jimmy::LoopingNet(1, 30, 1, Jimmy::Methods::transFuncs::tanh, 0.1));
+        networks.emplace_back(Jimmy::LoopingNet(1, 30, 1, 0, Jimmy::Methods::transFuncs::tanh, 0.1));
         Jimmy::LoopingNet& network = networks.back();
         network.randomize(-2.0/(30 + 2.0), 2.0/(30 + 2.0));
     }

@@ -25,6 +25,8 @@
 
 #include <utility>
 #include <cassert>
+#include <iostream>
+#include <filesystem>
 
 #include "JimmyNeuron/Misc/Misc.hpp"
 
@@ -35,6 +37,7 @@ Jimmy::LoopingNet::LoopingNet(const LoopingNet& other ) noexcept
 : inputNeurons(other.inputNeurons)
 , hiddenNeurons(other.hiddenNeurons)
 , outputNeurons(other.outputNeurons)
+, memoryNeurons(other.memoryNeurons)
 , outputDoublePtrs(other.outputDoublePtrs)
 , susceptibilityToMutations(other.susceptibilityToMutations)
 , transferFunction(other.transferFunction)
@@ -48,6 +51,7 @@ Jimmy::LoopingNet::LoopingNet(LoopingNet&& other) noexcept
 : inputNeurons(std::move(other.inputNeurons))
 , hiddenNeurons(std::move(other.hiddenNeurons))
 , outputNeurons(std::move(other.outputNeurons))
+, memoryNeurons(std::move(other.memoryNeurons))
 , outputDoublePtrs(std::move(other.outputDoublePtrs))
 , susceptibilityToMutations(std::move(other.susceptibilityToMutations))
 , transferFunction(std::move(other.transferFunction))
@@ -61,6 +65,7 @@ Jimmy::LoopingNet& Jimmy::LoopingNet::operator=(const LoopingNet& other) noexcep
     inputNeurons = other.inputNeurons;
     hiddenNeurons = other.hiddenNeurons;
     outputNeurons = other.outputNeurons;
+    memoryNeurons = other.memoryNeurons;
     outputDoublePtrs = other.outputDoublePtrs;
     susceptibilityToMutations = other.susceptibilityToMutations;
     transferFunction = other.transferFunction;
@@ -75,6 +80,7 @@ Jimmy::LoopingNet& Jimmy::LoopingNet::operator=(LoopingNet&& other) noexcept {
         inputNeurons = std::move(other.inputNeurons);
         hiddenNeurons = std::move(other.hiddenNeurons);
         outputNeurons = std::move(other.outputNeurons);
+        memoryNeurons = std::move(other.memoryNeurons);
         outputDoublePtrs = std::move(other.outputDoublePtrs);
         susceptibilityToMutations = std::move(other.susceptibilityToMutations);
         transferFunction = std::move(other.transferFunction);
@@ -89,10 +95,11 @@ Jimmy::LoopingNet::~LoopingNet(){
     
 }
 
-Jimmy::LoopingNet::LoopingNet(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, Jimmy::TransferFunction _transferFunction, double _susceptibilityToMutations)
-: inputNeurons(inputLayerSize, Jimmy::LoopingNeuron(inputLayerSize,hiddenLayerSize,outputLayerSize))
-, hiddenNeurons(hiddenLayerSize, Jimmy::LoopingNeuron(inputLayerSize,hiddenLayerSize,outputLayerSize))
-, outputNeurons(outputLayerSize, Jimmy::LoopingNeuron(inputLayerSize,hiddenLayerSize,outputLayerSize))
+Jimmy::LoopingNet::LoopingNet(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, size_t memoryLayerSize, Jimmy::TransferFunction _transferFunction, double _susceptibilityToMutations)
+: inputNeurons(inputLayerSize, Jimmy::LoopingNeuron(inputLayerSize,hiddenLayerSize,outputLayerSize,memoryLayerSize))
+, hiddenNeurons(hiddenLayerSize, Jimmy::LoopingNeuron(inputLayerSize,hiddenLayerSize,outputLayerSize,memoryLayerSize))
+, outputNeurons(outputLayerSize, Jimmy::LoopingNeuron(inputLayerSize,hiddenLayerSize,outputLayerSize,memoryLayerSize))
+, memoryNeurons(memoryLayerSize, Jimmy::LoopingNeuron(inputLayerSize,hiddenLayerSize,outputLayerSize,memoryLayerSize))
 , outputDoublePtrs(0)
 , susceptibilityToMutations(_susceptibilityToMutations)
 , transferFunction(_transferFunction)
@@ -118,22 +125,17 @@ const std::vector<double>& Jimmy::LoopingNet::getOutput(){
 }
 
 void Jimmy::LoopingNet::run(){
-    neuronsProcess(hiddenNeurons,true, true, true, false, true);
-    setOutputValueAsValue(hiddenNeurons);
-    neuronsProcess(hiddenNeurons,false, false, false, true, false);
-    setOutputValueAsValue(hiddenNeurons);
-    neuronsProcess(outputNeurons,true, true, true, true, true);
-    setOutputValueAsValue(outputNeurons);
 }
 
 void Jimmy::LoopingNet::run(const std::vector<double>& inputs){
-    setInput(inputs);
-    for(unsigned int neuronIndex = 0; neuronIndex < inputNeurons.size(); neuronIndex++){
-        if(inputNeurons[neuronIndex].value != inputs[neuronIndex]){
-            std::cout << "warning " << inputNeurons[neuronIndex].value << " " << inputs[neuronIndex] << "\n";
-        }
-    }
-    run();
+    neuronsProcess<true, true, true, false, true, true>(hiddenNeurons, inputs);
+    setOutputValueAsValue(hiddenNeurons);
+    neuronsProcess<false, false, false, true, false, false>(hiddenNeurons, inputs);
+    setOutputValueAsValue(hiddenNeurons);
+    neuronsProcess<true, true, true, true, true, true>(outputNeurons, inputs);
+    setOutputValueAsValue(outputNeurons);
+    neuronsProcess<true, true, true, true, true, true>(memoryNeurons, inputs);
+    setOutputValueAsValue(memoryNeurons);
 }
 
 void Jimmy::LoopingNet::mutate(){
@@ -149,6 +151,10 @@ void Jimmy::LoopingNet::mutate(){
             value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
         for(std::vector<double>::iterator iterVal = neuron.outputNeuronWeights.begin(); iterVal != neuron.outputNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
             double& value = *iterVal;
             value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
@@ -168,6 +174,10 @@ void Jimmy::LoopingNet::mutate(){
             double& value = *iterVal;
             value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = outputNeurons.begin(); iter != outputNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
@@ -181,6 +191,30 @@ void Jimmy::LoopingNet::mutate(){
             value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
         for(std::vector<double>::iterator iterVal = neuron.outputNeuronWeights.begin(); iterVal != neuron.outputNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = memoryNeurons.begin(); iter != memoryNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.bias += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        for(std::vector<double>::iterator iterVal = neuron.inputNeuronWeights.begin(); iterVal != neuron.inputNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.hiddenNeuronWeights.begin(); iterVal != neuron.hiddenNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.outputNeuronWeights.begin(); iterVal != neuron.outputNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
             double& value = *iterVal;
             value += Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
@@ -204,6 +238,10 @@ void Jimmy::LoopingNet::randomize(double minWeight, double maxWeight){
             double& value = *iterVal;
             value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
         }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
+        }
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = hiddenNeurons.begin(); iter != hiddenNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
@@ -220,6 +258,10 @@ void Jimmy::LoopingNet::randomize(double minWeight, double maxWeight){
             double& value = *iterVal;
             value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
         }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
+        }
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = outputNeurons.begin(); iter != outputNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
@@ -233,6 +275,30 @@ void Jimmy::LoopingNet::randomize(double minWeight, double maxWeight){
             value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
         }
         for(std::vector<double>::iterator iterVal = neuron.outputNeuronWeights.begin(); iterVal != neuron.outputNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = memoryNeurons.begin(); iter != memoryNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.bias = Jimmy::Misc::rand().decimal(minWeight,maxWeight);
+        for(std::vector<double>::iterator iterVal = neuron.inputNeuronWeights.begin(); iterVal != neuron.inputNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.hiddenNeuronWeights.begin(); iterVal != neuron.hiddenNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.outputNeuronWeights.begin(); iterVal != neuron.outputNeuronWeights.end(); iterVal = std::next(iterVal)){
+            double& value = *iterVal;
+            value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
+        }
+        for(std::vector<double>::iterator iterVal = neuron.memoryNeuronWeights.begin(); iterVal != neuron.memoryNeuronWeights.end(); iterVal = std::next(iterVal)){
             double& value = *iterVal;
             value = Jimmy::Misc::rand().decimal(minWeight, maxWeight);
         }
@@ -274,6 +340,15 @@ void Jimmy::LoopingNet::evolveFrom(const Jimmy::LoopingNet& networkFemale, const
         }
         outputVector.resize(outputNeurons.size());
     }
+    if((*this).memoryNeurons.size() != networkFemale.memoryNeurons.size() || (*this).memoryNeurons.size() != networkFemale.memoryNeurons.size()){
+        const bool inheritLengthFromMale = Jimmy::Misc::rand().binary();
+        if(inheritLengthFromMale){
+            memoryNeurons.resize(networkMale.memoryNeurons.size());
+        }
+        else{
+            memoryNeurons.resize(networkFemale.memoryNeurons.size());
+        }
+    }
 
     // // inherit each weight (input)
     for(unsigned int neuronIndex = 0; neuronIndex < inputNeurons.size(); neuronIndex++){
@@ -283,6 +358,7 @@ void Jimmy::LoopingNet::evolveFrom(const Jimmy::LoopingNet& networkFemale, const
         currentNeuron.inputNeuronWeights.resize(inputNeurons.size());
         currentNeuron.hiddenNeuronWeights.resize(hiddenNeurons.size());
         currentNeuron.outputNeuronWeights.resize(outputNeurons.size());
+        currentNeuron.memoryNeuronWeights.resize(memoryNeurons.size());
         currentNeuron.bias = (Jimmy::Misc::rand().binary() ? networkFemale.inputNeurons[neuronIndex].bias : networkMale.inputNeurons[neuronIndex].bias) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
 
         const std::vector<double>* shortWeightVectorPtr;
@@ -334,6 +410,21 @@ void Jimmy::LoopingNet::evolveFrom(const Jimmy::LoopingNet& networkFemale, const
             currentNeuron.outputNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
 
+        if(maleNeuron.memoryNeuronWeights.size() > femaleNeuron.memoryNeuronWeights.size()){
+            shortWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+        }
+        else{
+            shortWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+        }
+        for(unsigned int weightIndex = 0; weightIndex < shortWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (Jimmy::Misc::rand().binary() ? maleNeuron.memoryNeuronWeights[weightIndex] : femaleNeuron.memoryNeuronWeights[weightIndex] ) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(unsigned int weightIndex = shortWeightVectorPtr->size(); weightIndex < longWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+
     }
 
     // // inherit each weight (hidden)
@@ -344,6 +435,7 @@ void Jimmy::LoopingNet::evolveFrom(const Jimmy::LoopingNet& networkFemale, const
         currentNeuron.inputNeuronWeights.resize(inputNeurons.size());
         currentNeuron.hiddenNeuronWeights.resize(hiddenNeurons.size());
         currentNeuron.outputNeuronWeights.resize(outputNeurons.size());
+        currentNeuron.memoryNeuronWeights.resize(memoryNeurons.size());
         currentNeuron.bias = (Jimmy::Misc::rand().binary() ? networkFemale.hiddenNeurons[neuronIndex].bias : networkMale.hiddenNeurons[neuronIndex].bias) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
 
         const std::vector<double>* shortWeightVectorPtr;
@@ -395,6 +487,21 @@ void Jimmy::LoopingNet::evolveFrom(const Jimmy::LoopingNet& networkFemale, const
             currentNeuron.outputNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
 
+        if(maleNeuron.memoryNeuronWeights.size() > femaleNeuron.memoryNeuronWeights.size()){
+            shortWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+        }
+        else{
+            shortWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+        }
+        for(unsigned int weightIndex = 0; weightIndex < shortWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (Jimmy::Misc::rand().binary() ? maleNeuron.memoryNeuronWeights[weightIndex] : femaleNeuron.memoryNeuronWeights[weightIndex] ) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(unsigned int weightIndex = shortWeightVectorPtr->size(); weightIndex < longWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+           
     }
 
     // // inherit each weight (output)
@@ -405,6 +512,7 @@ void Jimmy::LoopingNet::evolveFrom(const Jimmy::LoopingNet& networkFemale, const
         currentNeuron.inputNeuronWeights.resize(inputNeurons.size());
         currentNeuron.hiddenNeuronWeights.resize(hiddenNeurons.size());
         currentNeuron.outputNeuronWeights.resize(outputNeurons.size());
+        currentNeuron.memoryNeuronWeights.resize(memoryNeurons.size());
         currentNeuron.bias = (Jimmy::Misc::rand().binary() ? networkFemale.outputNeurons[neuronIndex].bias : networkMale.outputNeurons[neuronIndex].bias) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
 
         const std::vector<double>* shortWeightVectorPtr;
@@ -456,6 +564,98 @@ void Jimmy::LoopingNet::evolveFrom(const Jimmy::LoopingNet& networkFemale, const
             currentNeuron.outputNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
         }
 
+        if(maleNeuron.memoryNeuronWeights.size() > femaleNeuron.memoryNeuronWeights.size()){
+            shortWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+        }
+        else{
+            shortWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+        }
+        for(unsigned int weightIndex = 0; weightIndex < shortWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (Jimmy::Misc::rand().binary() ? maleNeuron.memoryNeuronWeights[weightIndex] : femaleNeuron.memoryNeuronWeights[weightIndex] ) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(unsigned int weightIndex = shortWeightVectorPtr->size(); weightIndex < longWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+           
+    }
+
+    // // inherit each weight (memory)
+    for(unsigned int neuronIndex = 0; neuronIndex < memoryNeurons.size(); neuronIndex++){
+        Jimmy::LoopingNeuron& currentNeuron = memoryNeurons[neuronIndex];
+        const Jimmy::LoopingNeuron& maleNeuron = networkMale.memoryNeurons[neuronIndex];
+        const Jimmy::LoopingNeuron& femaleNeuron = networkFemale.memoryNeurons[neuronIndex];
+        currentNeuron.inputNeuronWeights.resize(inputNeurons.size());
+        currentNeuron.hiddenNeuronWeights.resize(hiddenNeurons.size());
+        currentNeuron.outputNeuronWeights.resize(outputNeurons.size());
+        currentNeuron.memoryNeuronWeights.resize(memoryNeurons.size());
+        currentNeuron.bias = (Jimmy::Misc::rand().binary() ? networkFemale.memoryNeurons[neuronIndex].bias : networkMale.memoryNeurons[neuronIndex].bias) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+
+        const std::vector<double>* shortWeightVectorPtr;
+        const std::vector<double>* longWeightVectorPtr;
+        /* binary way */
+        // find shorter and longer weight vectors (input)
+        if(maleNeuron.inputNeuronWeights.size() > femaleNeuron.inputNeuronWeights.size()){
+            shortWeightVectorPtr = &(femaleNeuron.inputNeuronWeights);
+            longWeightVectorPtr = &(maleNeuron.inputNeuronWeights);
+        }
+        else{
+            shortWeightVectorPtr = &(maleNeuron.inputNeuronWeights);
+            longWeightVectorPtr = &(femaleNeuron.inputNeuronWeights);
+        }
+        for(unsigned int weightIndex = 0; weightIndex < shortWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.inputNeuronWeights[weightIndex] = (Jimmy::Misc::rand().binary() ? maleNeuron.inputNeuronWeights[weightIndex] : femaleNeuron.inputNeuronWeights[weightIndex] ) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(unsigned int weightIndex = shortWeightVectorPtr->size(); weightIndex < longWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.inputNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        // find shorter and longer weight vectors (hidden)
+        if(maleNeuron.hiddenNeuronWeights.size() > femaleNeuron.hiddenNeuronWeights.size()){
+            shortWeightVectorPtr = &(femaleNeuron.hiddenNeuronWeights);
+            longWeightVectorPtr = &(maleNeuron.hiddenNeuronWeights);
+        }
+        else{
+            shortWeightVectorPtr = &(maleNeuron.hiddenNeuronWeights);
+            longWeightVectorPtr = &(femaleNeuron.hiddenNeuronWeights);
+        }
+        for(unsigned int weightIndex = 0; weightIndex < shortWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.hiddenNeuronWeights[weightIndex] = (Jimmy::Misc::rand().binary() ? maleNeuron.hiddenNeuronWeights[weightIndex] : femaleNeuron.hiddenNeuronWeights[weightIndex] ) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(unsigned int weightIndex = shortWeightVectorPtr->size(); weightIndex < longWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.hiddenNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        // find shorter and longer weight vectors (output)
+        if(maleNeuron.outputNeuronWeights.size() > femaleNeuron.outputNeuronWeights.size()){
+            shortWeightVectorPtr = &(femaleNeuron.outputNeuronWeights);
+            longWeightVectorPtr = &(maleNeuron.outputNeuronWeights);
+        }
+        else{
+            shortWeightVectorPtr = &(maleNeuron.outputNeuronWeights);
+            longWeightVectorPtr = &(femaleNeuron.outputNeuronWeights);
+        }
+        for(unsigned int weightIndex = 0; weightIndex < shortWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.outputNeuronWeights[weightIndex] = (Jimmy::Misc::rand().binary() ? maleNeuron.outputNeuronWeights[weightIndex] : femaleNeuron.outputNeuronWeights[weightIndex] ) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(unsigned int weightIndex = shortWeightVectorPtr->size(); weightIndex < longWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.outputNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+
+        if(maleNeuron.memoryNeuronWeights.size() > femaleNeuron.memoryNeuronWeights.size()){
+            shortWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+        }
+        else{
+            shortWeightVectorPtr = &(maleNeuron.memoryNeuronWeights);
+            longWeightVectorPtr = &(femaleNeuron.memoryNeuronWeights);
+        }
+        for(unsigned int weightIndex = 0; weightIndex < shortWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (Jimmy::Misc::rand().binary() ? maleNeuron.memoryNeuronWeights[weightIndex] : femaleNeuron.memoryNeuronWeights[weightIndex] ) + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+        for(unsigned int weightIndex = shortWeightVectorPtr->size(); weightIndex < longWeightVectorPtr->size(); weightIndex++){
+            currentNeuron.memoryNeuronWeights[weightIndex] = (*longWeightVectorPtr)[weightIndex] + Jimmy::Misc::rand().decimal(-susceptibilityToMutations, susceptibilityToMutations);
+        }
+           
     }
 
     /* floating way */ 
@@ -482,12 +682,19 @@ void Jimmy::LoopingNet::evolveFrom(const std::vector<Jimmy::LoopingNet*>& networ
     // TODO
 }
 
+void Jimmy::LoopingNet::addNeurons(size_t nI, size_t nH, size_t nO, size_t nM){
+    addInputNeurons(nI);
+    addHiddenNeurons(nH);
+    addOutputNeurons(nO);
+    addMemoryNeurons(nM);
+}
+
 void Jimmy::LoopingNet::addInputNeurons(size_t n){
     size_t oldSize = inputNeurons.size();
     size_t newSize = oldSize + n;
     inputNeurons.reserve(newSize);
     for(unsigned long int i = 0; i < n; i++){
-        inputNeurons.emplace_back(Jimmy::LoopingNeuron(oldSize, hiddenNeurons.size(), outputNeurons.size()));
+        inputNeurons.emplace_back(Jimmy::LoopingNeuron(oldSize, hiddenNeurons.size(), outputNeurons.size(), memoryNeurons.size()));
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = inputNeurons.begin(); iter != inputNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
@@ -504,6 +711,13 @@ void Jimmy::LoopingNet::addInputNeurons(size_t n){
         }
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = outputNeurons.begin(); iter != outputNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.inputNeuronWeights.reserve(newSize);
+        for(unsigned long int i = 0; i < n; i++){
+            neuron.inputNeuronWeights.emplace_back(0);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = memoryNeurons.begin(); iter != memoryNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
         neuron.inputNeuronWeights.reserve(newSize);
         for(unsigned long int i = 0; i < n; i++){
@@ -517,7 +731,7 @@ void Jimmy::LoopingNet::addHiddenNeurons(size_t n){
     size_t newSize = oldSize + n;
     hiddenNeurons.reserve(newSize);
     for(unsigned long int i = 0; i < n; i++){
-        hiddenNeurons.emplace_back(Jimmy::LoopingNeuron(inputNeurons.size(), oldSize, outputNeurons.size()));
+        hiddenNeurons.emplace_back(Jimmy::LoopingNeuron(inputNeurons.size(), oldSize, outputNeurons.size(), memoryNeurons.size()));
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = inputNeurons.begin(); iter != inputNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
@@ -534,6 +748,13 @@ void Jimmy::LoopingNet::addHiddenNeurons(size_t n){
         }
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = outputNeurons.begin(); iter != outputNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.hiddenNeuronWeights.reserve(newSize);
+        for(unsigned long int i = 0; i < n; i++){
+            neuron.hiddenNeuronWeights.emplace_back(0);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = memoryNeurons.begin(); iter != memoryNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
         neuron.hiddenNeuronWeights.reserve(newSize);
         for(unsigned long int i = 0; i < n; i++){
@@ -548,7 +769,7 @@ void Jimmy::LoopingNet::addOutputNeurons(size_t n){
     outputNeurons.reserve(newSize);
     outputVector.resize(newSize);
     for(unsigned long int i = 0; i < n; i++){
-        outputNeurons.emplace_back(Jimmy::LoopingNeuron(inputNeurons.size(), hiddenNeurons.size(), oldSize));
+        outputNeurons.emplace_back(Jimmy::LoopingNeuron(inputNeurons.size(), hiddenNeurons.size(), oldSize, memoryNeurons.size()));
     }
     for(std::vector<Jimmy::LoopingNeuron>::iterator iter = inputNeurons.begin(); iter != inputNeurons.end(); iter = std::next(iter)){
         Jimmy::LoopingNeuron& neuron = *iter;
@@ -569,6 +790,50 @@ void Jimmy::LoopingNet::addOutputNeurons(size_t n){
         neuron.outputNeuronWeights.reserve(newSize);
         for(unsigned long int i = 0; i < n; i++){
             neuron.outputNeuronWeights.emplace_back(0);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = memoryNeurons.begin(); iter != memoryNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.outputNeuronWeights.reserve(newSize);
+        for(unsigned long int i = 0; i < n; i++){
+            neuron.outputNeuronWeights.emplace_back(0);
+        }
+    }
+}
+
+void Jimmy::LoopingNet::addMemoryNeurons(size_t n){
+    size_t oldSize = memoryNeurons.size();
+    size_t newSize = oldSize + n;
+    memoryNeurons.reserve(newSize);
+    for(unsigned long int i = 0; i < n; i++){
+        memoryNeurons.emplace_back(Jimmy::LoopingNeuron(inputNeurons.size(), hiddenNeurons.size(), outputNeurons.size(), oldSize));
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = inputNeurons.begin(); iter != inputNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.memoryNeuronWeights.reserve(newSize);
+        for(unsigned long int i = 0; i < n; i++){
+            neuron.memoryNeuronWeights.emplace_back(0);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = hiddenNeurons.begin(); iter != hiddenNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.memoryNeuronWeights.reserve(newSize);
+        for(unsigned long int i = 0; i < n; i++){
+            neuron.memoryNeuronWeights.emplace_back(0);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = outputNeurons.begin(); iter != outputNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.memoryNeuronWeights.reserve(newSize);
+        for(unsigned long int i = 0; i < n; i++){
+            neuron.memoryNeuronWeights.emplace_back(0);
+        }
+    }
+    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = memoryNeurons.begin(); iter != memoryNeurons.end(); iter = std::next(iter)){
+        Jimmy::LoopingNeuron& neuron = *iter;
+        neuron.memoryNeuronWeights.reserve(newSize);
+        for(unsigned long int i = 0; i < n; i++){
+            neuron.memoryNeuronWeights.emplace_back(0);
         }
     }
 }
@@ -586,6 +851,10 @@ void Jimmy::LoopingNet::clearValues(){
         neuron.value = 0.0;
         neuron.outputValue = 0.0;
     }
+    for(Jimmy::LoopingNeuron& neuron : memoryNeurons){
+        neuron.value = 0.0;
+        neuron.outputValue = 0.0;
+    }
 }
 
 void Jimmy::LoopingNet::clearOutputValues(){
@@ -593,6 +862,84 @@ void Jimmy::LoopingNet::clearOutputValues(){
         neuron.value = 0.0;
         neuron.outputValue = 0.0;
     }
+}
+
+void Jimmy::LoopingNet::saveToFile(std::string path) const {
+    std::ofstream ofs(path, std::ios::binary);
+    size_t inputLayerSize;
+    size_t hiddenLayerSize;
+    size_t outputLayerSize;
+    size_t memoryLayerSize;
+    inputLayerSize = inputNeurons.size();
+    hiddenLayerSize = hiddenNeurons.size();
+    outputLayerSize = outputNeurons.size();
+    memoryLayerSize = memoryNeurons.size();
+    ofs.write(reinterpret_cast<const char*>(& inputLayerSize), sizeof(size_t));
+    ofs.write(reinterpret_cast<const char*>(& hiddenLayerSize), sizeof(size_t));
+    ofs.write(reinterpret_cast<const char*>(& outputLayerSize), sizeof(size_t));
+    ofs.write(reinterpret_cast<const char*>(& memoryLayerSize), sizeof(size_t));
+    for(const Jimmy::LoopingNeuron& neuron: inputNeurons){
+        saveNeuron(neuron, ofs);
+    }
+    for(const Jimmy::LoopingNeuron& neuron: hiddenNeurons){
+        saveNeuron(neuron, ofs);
+    }
+    for(const Jimmy::LoopingNeuron& neuron: outputNeurons){
+        saveNeuron(neuron, ofs);
+    }
+    for(const Jimmy::LoopingNeuron& neuron: memoryNeurons){
+        saveNeuron(neuron, ofs);
+    }
+    ofs.close();
+}
+
+void Jimmy::LoopingNet::loadFromFile(std::string path){
+    std::ifstream ifs(path, std::ios::binary);
+    size_t inputLayerSize;
+    size_t hiddenLayerSize;
+    size_t outputLayerSize;
+    size_t memoryLayerSize;
+    ifs.read(reinterpret_cast<char *>(&inputLayerSize), sizeof(size_t));
+    ifs.read(reinterpret_cast<char *>(&hiddenLayerSize), sizeof(size_t));
+    ifs.read(reinterpret_cast<char *>(&outputLayerSize), sizeof(size_t));
+    ifs.read(reinterpret_cast<char *>(&memoryLayerSize), sizeof(size_t));
+    inputNeurons.resize(inputLayerSize);
+    hiddenNeurons.resize(hiddenLayerSize);
+    outputNeurons.resize(outputLayerSize);
+    memoryNeurons.resize(memoryLayerSize);
+    for(Jimmy::LoopingNeuron& neuron: inputNeurons){
+        loadNeuron(neuron, ifs);
+    }
+    for(Jimmy::LoopingNeuron& neuron: hiddenNeurons){
+        loadNeuron(neuron, ifs);
+    }
+    for(Jimmy::LoopingNeuron& neuron: outputNeurons){
+        loadNeuron(neuron, ifs);
+    }
+    for(Jimmy::LoopingNeuron& neuron: memoryNeurons){
+        loadNeuron(neuron, ifs);
+    }
+    ifs.close();
+}
+
+void Jimmy::LoopingNet::saveNeuron(const Jimmy::LoopingNeuron& neuron, std::ofstream& ofs) const {
+    ofs.write(reinterpret_cast<const char*>(&(neuron.bias)), sizeof(double));
+    ofs.write(reinterpret_cast<const char *>(neuron.inputNeuronWeights.data() ),inputNeurons.size()  * sizeof(double));
+    ofs.write(reinterpret_cast<const char *>(neuron.hiddenNeuronWeights.data()),hiddenNeurons.size() * sizeof(double));
+    ofs.write(reinterpret_cast<const char *>(neuron.outputNeuronWeights.data()),outputNeurons.size() * sizeof(double));
+    ofs.write(reinterpret_cast<const char *>(neuron.memoryNeuronWeights.data()),memoryNeurons.size() * sizeof(double));
+}
+
+void Jimmy::LoopingNet::loadNeuron(Jimmy::LoopingNeuron& neuron, std::ifstream& ifs){
+    neuron.inputNeuronWeights.resize(inputNeurons.size());
+    neuron.hiddenNeuronWeights.resize(hiddenNeurons.size());
+    neuron.outputNeuronWeights.resize(outputNeurons.size());
+    neuron.memoryNeuronWeights.resize(memoryNeurons.size());
+    ifs.read(reinterpret_cast<char *>(&(neuron.bias)), sizeof(double));
+    ifs.read(reinterpret_cast<char *>(neuron.inputNeuronWeights.data() ),inputNeurons.size()  * sizeof(double));
+    ifs.read(reinterpret_cast<char *>(neuron.hiddenNeuronWeights.data()),hiddenNeurons.size() * sizeof(double));
+    ifs.read(reinterpret_cast<char *>(neuron.outputNeuronWeights.data()),outputNeurons.size() * sizeof(double));
+    ifs.read(reinterpret_cast<char *>(neuron.memoryNeuronWeights.data()),memoryNeurons.size() * sizeof(double));
 }
 
 
@@ -603,36 +950,3 @@ void Jimmy::LoopingNet::setOutputValueAsValue(std::vector<Jimmy::LoopingNeuron>&
     }
 }
 
-void Jimmy::LoopingNet::neuronsProcess(std::vector<Jimmy::LoopingNeuron>& processingNeurons, const bool resetSum, const bool addBias, const bool processInputs, const bool processHidden, const bool processOutput){
-    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = processingNeurons.begin(); iter != processingNeurons.end(); iter = std::next(iter)){
-        Jimmy::LoopingNeuron& neuron = *iter;
-        if(resetSum){
-            neuron.weightedSum = 0;
-        }
-        if(addBias){
-            neuron.weightedSum += neuron.bias;
-        }
-        if(processInputs){ 
-            for(unsigned int i = 0; i < inputNeurons.size(); i++){
-                // std::cout << "inp : " << inputNeurons[i].value << " * " << neuron.inputNeuronWeights[i] << " = " << inputNeurons[i].value * neuron.inputNeuronWeights[i] << " " << transferFunction.run(INFINITY) << "\n";
-                neuron.weightedSum += inputNeurons[i].value * neuron.inputNeuronWeights[i];
-            }
-        }
-        if(processHidden){
-            for(unsigned int i = 0; i < hiddenNeurons.size(); i++){
-                // std::cout << "hid : " << hiddenNeurons[i].value << " * " << neuron.hiddenNeuronWeights[i] << " = " << hiddenNeurons[i].value * neuron.hiddenNeuronWeights[i] << "\n";
-
-                neuron.weightedSum += hiddenNeurons[i].value * neuron.hiddenNeuronWeights[i];
-            } 
-        }
-        if(processOutput){
-            for(unsigned int i = 0; i < outputNeurons.size(); i++){
-                // std::cout << "out : " << outputNeurons[i].value << " * " << neuron.outputNeuronWeights[i] << " = " << outputNeurons[i].value * neuron.outputNeuronWeights[i] << "\n";
-
-                neuron.weightedSum += outputNeurons[i].value * neuron.outputNeuronWeights[i];
-            }
-        }
-        // std::cout << neuron.weightedSum << " " << transferFunction.run(neuron.weightedSum) << "\n";
-        neuron.outputValue = transferFunction.run(neuron.weightedSum);
-    }   
-}

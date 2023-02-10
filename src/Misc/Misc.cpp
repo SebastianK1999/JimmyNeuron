@@ -38,7 +38,7 @@ int Jimmy::Misc::MISC_RAND::randInt(int N) {
     return this->disMaxInt(this->generator) % N;
 }
 int Jimmy::Misc::MISC_RAND::randInt(int n, int N) {
-    return this->disAllInt(this->generator) % (N - n) + n;
+    return n + (this->disMaxInt(this->generator) % abs(N - n));
 }
 
 // rand double

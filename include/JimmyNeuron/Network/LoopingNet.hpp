@@ -26,6 +26,7 @@
 #pragma once
 
 #include <vector>
+#include <fstream>
 
 #include "JimmyNeuron/Network/LoopingNeuron.hpp"
 #include "JimmyNeuron/Network/TransferFunction.hpp"
@@ -37,6 +38,7 @@ namespace Jimmy
         std::vector<Jimmy::LoopingNeuron> inputNeurons;
         std::vector<Jimmy::LoopingNeuron> hiddenNeurons;
         std::vector<Jimmy::LoopingNeuron> outputNeurons;
+        std::vector<Jimmy::LoopingNeuron> memoryNeurons;
         std::vector<double*> outputDoublePtrs;
         Jimmy::TransferFunction transferFunction;
         double susceptibilityToMutations;
@@ -47,7 +49,7 @@ namespace Jimmy
         LoopingNet& operator=(const LoopingNet& other) noexcept;
         LoopingNet& operator=(LoopingNet&& other) noexcept;
         virtual ~LoopingNet();
-        LoopingNet(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, Jimmy::TransferFunction transferFunction, double susceptibilityToMutations);
+        LoopingNet(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, size_t memoryLayerSize, Jimmy::TransferFunction transferFunction, double susceptibilityToMutations);
         void setInput(const std::vector<double>& inputs);
         const std::vector<double>& getOutput();
         void run();
@@ -57,17 +59,26 @@ namespace Jimmy
         void evolveFrom(const Jimmy::LoopingNet& networkParent);
         void evolveFrom(const Jimmy::LoopingNet& networkFemale, const Jimmy::LoopingNet& networkMale);
         void evolveFrom(const std::vector<Jimmy::LoopingNet*>& networkOrgyPointers);
+        void addNeurons(size_t nI, size_t nH ,size_t nO, size_t nM);
         void addInputNeurons(size_t n);
         void addHiddenNeurons(size_t n);
         void addOutputNeurons(size_t n);
+        void addMemoryNeurons(size_t n);
         void clearValues();
         void clearOutputValues();
+        void saveToFile(std::string path) const;
+        void loadFromFile(std::string path);
         
     private:
+        void saveNeuron(const Jimmy::LoopingNeuron& neuron, std::ofstream& ofs) const;
+        void loadNeuron(Jimmy::LoopingNeuron& neuron, std::ifstream& ifs);
         std::vector<double> outputVector;
 
-        void neuronsProcess(std::vector<Jimmy::LoopingNeuron>& processingNeurons, const bool resetSum = false, const bool addBias = false, const bool processInputs = false, const bool processHidden = false, const bool processOutput = false);
+        template<bool RESET_SUM, bool ADD_BIAS, bool PROCESS_INPUT, bool PROCESS_HIDDEN, bool PROCESS_OUTPUT, bool PROCESS_MEMORY>
+        void neuronsProcess(std::vector<Jimmy::LoopingNeuron>& processingNeurons, std::vector<double> inputData);
         static void setOutputValueAsValue(std::vector<Jimmy::LoopingNeuron>& neurons);
 
     };
 } // namespace Jimmy
+
+#include "JimmyNeuron/Network/LoopingNet.inl"

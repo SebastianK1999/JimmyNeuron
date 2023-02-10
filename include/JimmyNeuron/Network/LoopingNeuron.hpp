@@ -34,6 +34,7 @@ namespace Jimmy
         std::vector<double> inputNeuronWeights;
         std::vector<double> hiddenNeuronWeights;
         std::vector<double> outputNeuronWeights;
+        std::vector<double> memoryNeuronWeights;
         double bias;
         double value;
         double outputValue;
@@ -44,7 +45,7 @@ namespace Jimmy
         LoopingNeuron& operator=(const LoopingNeuron& other) noexcept;
         LoopingNeuron& operator=(LoopingNeuron&& other) noexcept;
         virtual ~LoopingNeuron();
-        LoopingNeuron(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize);
+        LoopingNeuron(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, size_t memoryLayerSize);
         LoopingNeuron();
     };
 } // namespace jimmy

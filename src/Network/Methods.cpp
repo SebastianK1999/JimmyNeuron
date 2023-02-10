@@ -69,20 +69,20 @@ double Jimmy::Methods::transFuncs::RELU_DER(const double& r){
 }
 const Jimmy::TransferFunction Jimmy::Methods::transFuncs::reLU = TransferFunction(Methods::transFuncs::RELU,Methods::transFuncs::RELU_DER);
 
-//      Softmax
-double Jimmy::Methods::transFuncs::SOFTMAX(const double& x){
-    if (x >= 0){
-        return x;
-    }
-    return 0;
-}
-double Jimmy::Methods::transFuncs::SOFTMAX_DER(const double& r){
-    if (r >= 0){
-        return 1;
-    }
-    return 0;
-}
-const Jimmy::TransferFunction Jimmy::Methods::transFuncs::softmax = TransferFunction(Methods::transFuncs::SOFTMAX,Methods::transFuncs::SOFTMAX_DER);
+// //      Softmax
+// double Jimmy::Methods::transFuncs::SOFTMAX(const double& x){
+//     if (x >= 0){
+//         return x;
+//     }
+//     return 0;
+// }
+// double Jimmy::Methods::transFuncs::SOFTMAX_DER(const double& r){
+//     if (r >= 0){
+//         return 1;
+//     }
+//     return 0;
+// }
+// const Jimmy::TransferFunction Jimmy::Methods::transFuncs::softmax = TransferFunction(Methods::transFuncs::SOFTMAX,Methods::transFuncs::SOFTMAX_DER);
 
 
 

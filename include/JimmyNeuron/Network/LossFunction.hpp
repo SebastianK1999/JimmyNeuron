@@ -17,5 +17,4 @@ namespace Jimmy{
         LossFunction(const LossFunction&);
         void operator=(const LossFunction&);
     };
-
 }
