@@ -1,3 +1,5 @@
+#include <immintrin.h>
+
 #include "JimmyNeuron/Misc/Misc.hpp"
 
 
@@ -53,4 +55,19 @@ double Jimmy::Misc::MISC_RAND::decimal(double N) {
 }
 Jimmy::Misc::MISC_RAND& Jimmy::Misc::rand(){
     return Jimmy::Misc::MISC_RAND::get();
+}
+
+double Jimmy::Misc::WeightedSumSIMD(const std::vector<double>& value, const std::vector<double>& weights)
+{
+    double weightedSum = 0.0;
+    __m128d sum = _mm_setzero_pd();
+    for (int i = 0; i < value.size(); i += 2)
+    {
+        __m128d v = _mm_loadu_pd(&value[i]);
+        __m128d w = _mm_loadu_pd(&weights[i]);
+        sum = _mm_add_pd(sum, _mm_mul_pd(v, w));
+    }
+    weightedSum = _mm_cvtsd_f64(_mm_hadd_pd(sum, sum));
+    
+    return weightedSum;
 }

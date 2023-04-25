@@ -3,6 +3,7 @@
 #include <random>
 #include <iostream>
 #include <climits>
+#include <vector>
 
 namespace Jimmy{
     namespace Misc{
@@ -44,5 +45,7 @@ namespace Jimmy{
         };
         double calculateTheAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything();
         MISC_RAND& rand();
+
+        double WeightedSumSIMD(const std::vector<double>& value, const std::vector<double>& weights);
     } // end Misc
 } // end Jimmy

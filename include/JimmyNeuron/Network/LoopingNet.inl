@@ -1,7 +1,7 @@
 /*
 * MIT License
 * 
-* Copyright (c) 2022 Sebastian Kwaśniak
+* Copyright (c) 2023 Sebastian Kwaśniak
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,7 @@
 */
 template<bool RESET_SUM, bool ADD_BIAS, bool PROCESS_INPUT, bool PROCESS_HIDDEN, bool PROCESS_OUTPUT, bool PROCESS_MEMORY>
 void Jimmy::LoopingNet::neuronsProcess(std::vector<Jimmy::LoopingNeuron>& processingNeurons, std::vector<double> inputData){
-    for(std::vector<Jimmy::LoopingNeuron>::iterator iter = processingNeurons.begin(); iter != processingNeurons.end(); iter = std::next(iter)){
-        Jimmy::LoopingNeuron& neuron = *iter;
+    for(Jimmy::LoopingNeuron& neuron : processingNeurons){
         if constexpr (RESET_SUM){
             neuron.weightedSum = 0;
         }
@@ -36,10 +35,12 @@ void Jimmy::LoopingNet::neuronsProcess(std::vector<Jimmy::LoopingNeuron>& proces
             neuron.weightedSum += neuron.bias;
         }
         if constexpr (PROCESS_INPUT){ 
-            for(unsigned int i = 0; i < inputData.size(); i++){
-                // std::cout << "inp : " << inputData[i] << " * " << neuron.inputNeuronWeights[i] << " = " << inputData[i] * neuron.inputNeuronWeights[i] << " " << transferFunction.run(INFINITY) << "\n";
-                neuron.weightedSum += inputData[i] * neuron.inputNeuronWeights[i];
-            }
+
+            neuron.weightedSum += Jimmy::Misc::WeightedSumSIMD(inputData, neuron.inputNeuronWeights); // beacuse of .vale i cant use SIMD everywhere
+            // for(unsigned int i = 0; i < inputData.size(); i++){
+            //     // std::cout << "inp : " << inputData[i] << " * " << neuron.inputNeuronWeights[i] << " = " << inputData[i] * neuron.inputNeuronWeights[i] << " " << transferFunction.run(INFINITY) << "\n";
+            //     neuron.weightedSum += inputData[i] * neuron.inputNeuronWeights[i];
+            // }
         }
         if constexpr (PROCESS_HIDDEN){
             for(unsigned int i = 0; i < hiddenNeurons.size(); i++){
@@ -49,18 +50,26 @@ void Jimmy::LoopingNet::neuronsProcess(std::vector<Jimmy::LoopingNeuron>& proces
             } 
         }
         if constexpr (PROCESS_OUTPUT){
+            // std::cout << "out {\n";
+            // std::cout << "  " << neuron.weightedSum << "\n";
             for(unsigned int i = 0; i < outputNeurons.size(); i++){
-                // std::cout << "out : " << outputNeurons[i].value << " * " << neuron.outputNeuronWeights[i] << " = " << outputNeurons[i].value * neuron.outputNeuronWeights[i] << "\n";
+                // std::cout << "  out : " << outputNeurons[i].value << " * " << neuron.outputNeuronWeights[i] << " = " << outputNeurons[i].value * neuron.outputNeuronWeights[i] << "\n";
 
                 neuron.weightedSum += outputNeurons[i].value * neuron.outputNeuronWeights[i];
             }
+            // std::cout << "  " << neuron.weightedSum << "\n";
+            // std::cout << "}\n";
         }
         if constexpr (PROCESS_MEMORY){
+            // std::cout << "mem {\n";
+            // std::cout << "  " << neuron.weightedSum << "\n";
             for(unsigned int i = 0; i < memoryNeurons.size(); i++){
-                // std::cout << "out : " << memoryNeurons[i].value << " * " << neuron.memoryNeuronWeights[i] << " = " << memoryNeurons[i].value * neuron.memoryNeuronWeights[i] << "\n";
+                // std::cout << "  out : " << memoryNeurons[i].value << " * " << neuron.memoryNeuronWeights[i] << " = " << memoryNeurons[i].value * neuron.memoryNeuronWeights[i] << "\n";
 
                 neuron.weightedSum += memoryNeurons[i].value * neuron.memoryNeuronWeights[i];
             }
+            // std::cout << "  " << neuron.weightedSum << "\n";
+            // std::cout << "}\n";
         }
         // std::cout << neuron.weightedSum << " " << transferFunction.run(neuron.weightedSum) << "\n";
         neuron.outputValue = transferFunction.run(neuron.weightedSum);

@@ -26,7 +26,7 @@ elseif (APPLE)
 
 elseif (UNIX)
 
-    set(CMAKE_CXX_FLAGS "-Wall -pedantic -g -std=c++20 -Wno-comment -Wno-sign-compare -Wno-reorder -Wno-unused-function")
+    set(CMAKE_CXX_FLAGS "-Wall -pedantic -march=native -O3 -g -std=c++20 -Wno-comment -Wno-sign-compare -Wno-reorder -Wno-unused-function")
     add_definitions(-DUNIX)
 
 endif()
@@ -42,4 +42,6 @@ add_custom_command(TARGET JIMMY_NEURON_RESOURCES_DIR POST_BUILD
 add_subdirectory("external/") # linking to submodules
 add_subdirectory("submodules/") # linking to submodules
 add_subdirectory("src/") # adding sources
-add_subdirectory("bin/") # adding libraries
+if  (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    add_subdirectory("bin/") # adding libraries
+endif()

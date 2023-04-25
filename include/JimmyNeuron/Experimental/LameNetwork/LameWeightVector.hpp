@@ -29,23 +29,20 @@
 
 namespace Jimmy
 {
-    class LoopingNeuron{
-    public:
-        std::vector<double> inputNeuronWeights;
-        std::vector<double> hiddenNeuronWeights;
-        std::vector<double> outputNeuronWeights;
-        std::vector<double> memoryNeuronWeights;
-        double bias;
-        double value;
-        double outputValue;
-        double weightedSum;
+    namespace E
+    {
+        class LameWeightVector
+        {
+        public:
+            double bias;
+            std::vector<double> input;
+            std::vector<double> hidden;
+            std::vector<double> output;
+            std::vector<double> memory;
 
-        LoopingNeuron(const LoopingNeuron& other ) noexcept;
-        LoopingNeuron(LoopingNeuron&& other) noexcept;
-        LoopingNeuron& operator=(const LoopingNeuron& other) noexcept;
-        LoopingNeuron& operator=(LoopingNeuron&& other) noexcept;
-        virtual ~LoopingNeuron();
-        LoopingNeuron(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, size_t memoryLayerSize);
-        LoopingNeuron();
-    };
-} // namespace jimmy
+            LameWeightVector(size_t inputSize, size_t hiddenSize, size_t outputSize, size_t memorySize);
+
+        private:
+        };
+    }
+}

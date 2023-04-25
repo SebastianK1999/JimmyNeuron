@@ -1,7 +1,7 @@
 /*
 * MIT License
 * 
-* Copyright (c) 2022 Sebastian Kwaśniak
+* Copyright (c) 2023 Sebastian Kwaśniak
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,9 @@
 
 #include <vector>
 #include <fstream>
+#include <filesystem>
 
+#include "JimmyNeuron/Misc/Misc.hpp"
 #include "JimmyNeuron/Network/LoopingNeuron.hpp"
 #include "JimmyNeuron/Network/TransferFunction.hpp"
 
@@ -35,7 +37,7 @@ namespace Jimmy
 {
     class LoopingNet{
     public:
-        std::vector<Jimmy::LoopingNeuron> inputNeurons;
+        size_t inputSize;
         std::vector<Jimmy::LoopingNeuron> hiddenNeurons;
         std::vector<Jimmy::LoopingNeuron> outputNeurons;
         std::vector<Jimmy::LoopingNeuron> memoryNeurons;
@@ -50,7 +52,7 @@ namespace Jimmy
         LoopingNet& operator=(LoopingNet&& other) noexcept;
         virtual ~LoopingNet();
         LoopingNet(size_t inputLayerSize, size_t hiddenLayerSize, size_t outputLayerSize, size_t memoryLayerSize, Jimmy::TransferFunction transferFunction, double susceptibilityToMutations);
-        void setInput(const std::vector<double>& inputs);
+        // void setInput(const std::vector<double>& inputs);
         const std::vector<double>& getOutput();
         void run();
         void run(const std::vector<double>& inputs);
@@ -66,9 +68,10 @@ namespace Jimmy
         void addMemoryNeurons(size_t n);
         void clearValues();
         void clearOutputValues();
-        void saveToFile(std::string path) const;
-        void loadFromFile(std::string path);
-        
+        void clearMemoryValues();
+        void saveToFile(const std::filesystem::path& path) const;
+        void loadFromFile(const std::filesystem::path& path);
+
     private:
         void saveNeuron(const Jimmy::LoopingNeuron& neuron, std::ofstream& ofs) const;
         void loadNeuron(Jimmy::LoopingNeuron& neuron, std::ifstream& ifs);
