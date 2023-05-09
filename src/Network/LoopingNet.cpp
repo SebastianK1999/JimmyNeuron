@@ -404,30 +404,6 @@ void Jimmy::LoopingNet::loadFromFile(const std::filesystem::path& path){
     ifs.close();
 }
 
-void Jimmy::LoopingNet::setOutput(const double weight)
-{
-    for(int i = 0; i < outputNeurons.size(); i++)
-    {
-        outputNeurons[i].outputNeuronWeights[i] = weight;
-    }
-}
-
-void Jimmy::LoopingNet::setRandomOutputVal()
-{
-    for(int i = 0; i < outputNeurons.size(); i++)
-    {
-        outputNeurons[i].value = Jimmy::Misc::rand().decimal(-10,10);
-    }
-}
-
-void Jimmy::LoopingNet::setRandomMemVal()
-{
-    for(int i = 0; i < memoryNeurons.size(); i++)
-    {
-        memoryNeurons[i].value = Jimmy::Misc::rand().decimal(-10,10);
-    }
-}
-
 void Jimmy::LoopingNet::saveNeuron(const Jimmy::LoopingNeuron &neuron, std::ofstream &ofs) const
 {
     ofs.write(reinterpret_cast<const char*>(&(neuron.bias)), sizeof(double));
