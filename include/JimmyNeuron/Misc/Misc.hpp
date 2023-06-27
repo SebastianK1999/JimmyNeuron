@@ -3,6 +3,7 @@
 #include <random>
 #include <iostream>
 #include <climits>
+#include <string>
 #include <vector>
 
 namespace Jimmy{
@@ -47,5 +48,9 @@ namespace Jimmy{
         MISC_RAND& rand();
 
         double WeightedSumSIMD(const std::vector<double>& value, const std::vector<double>& weights);
+
+        std::string GetDate();
+        std::string GetDateTime();
+
     } // end Misc
 } // end Jimmy

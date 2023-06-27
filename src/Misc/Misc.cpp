@@ -1,4 +1,8 @@
 #include <immintrin.h>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+
 
 #include "JimmyNeuron/Misc/Misc.hpp"
 
@@ -70,4 +74,30 @@ double Jimmy::Misc::WeightedSumSIMD(const std::vector<double>& value, const std:
     weightedSum = _mm_cvtsd_f64(_mm_hadd_pd(sum, sum));
     
     return weightedSum;
+}
+
+std::string Jimmy::Misc::GetDate()
+{
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    int year = 1900 + ltm->tm_year;
+    int month = 1 + ltm->tm_mon;
+    int day = ltm->tm_mday;
+    std::stringstream ss;
+    ss << year << "-" << std::setfill('0') << std::setw(2) << month << "-" << std::setfill('0') << std::setw(2) << day;
+    return ss.str();
+}
+
+std::string Jimmy::Misc::GetDateTime()
+{
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    std::stringstream ss;
+    ss << 1900 + ltm->tm_year 
+        << "-" << std::setfill('0') << std::setw(2) << 1 + ltm->tm_mon 
+        << "-" << std::setfill('0') << std::setw(2) << ltm->tm_mday 
+        << "_" << std::setfill('0') << std::setw(2) << ltm->tm_hour 
+        << ":" << std::setfill('0') << std::setw(2) << ltm->tm_min 
+        << ":" << std::setfill('0') << std::setw(2) << ltm->tm_sec;
+    return ss.str();
 }
